@@ -30,6 +30,10 @@
 
         <div class="nav-section-label">Support</div>
         <a href="<%= navCp %>/contact" class="nav-item <%= navUri.contains("/contact") ? "active" : "" %>"><span class="nav-icon">&#x2709;&#xFE0F;</span> Contact Us</a>
+            <% if ("admin".equals(navUser.getRole())) { %>
+        <div class="nav-section-label">Administration</div>
+        <a href="<%= navCp %>/admin/users" class="nav-item <%= navUri.contains("/admin/users") ? "active" : "" %>"><span class="nav-icon">&#x1F465;</span> Manage Users</a>
+        <% } %>
     </nav>
     <div class="sidebar-footer">
         <form action="<%= navCp %>/logout" method="post">

@@ -1,8 +1,8 @@
 package com.eiseb.servlet;
 
-import com.eiseb.dao.ExpenseDAO;
 import com.eiseb.dao.LivestockDAO;
-import com.eiseb.model.Expense;
+import com.eiseb.dao.SaleDAO;
+import com.eiseb.model.Sale;
 import com.eiseb.util.SecurityUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-public class ExpenseServlet extends HttpServlet {
+public class SalesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -21,7 +21,7 @@ public class ExpenseServlet extends HttpServlet {
             return;
         }
         try {
-            ExpenseDAO eDao = new ExpenseDAO(getServletContext());
+            SaleDAO sDao = new SaleDAO(getServletContext());
             String action = req.getParameter("action");
             if ("editForm".equals(action)) {
                 if (!SecurityUtil.isManagerOrAdmin(req)) {
@@ -29,12 +29,12 @@ public class ExpenseServlet extends HttpServlet {
                     return;
                 }
                 int id = Integer.parseInt(req.getParameter("id"));
-                Expense editExpense = eDao.findById(id);
-                req.setAttribute("editExpense", editExpense);
+                Sale editSale = sDao.findById(id);
+                req.setAttribute("editSale", editSale);
             }
-            req.setAttribute("expenses", eDao.findAll());
-            req.setAttribute("allLivestock", new LivestockDAO(getServletContext()).findAll());
-            req.getRequestDispatcher("/pages/expenses.jsp").forward(req, resp);
+            req.setAttribute("sales", sDao.findAll());
+            req.setAttribute("activeLivestock", new LivestockDAO(getServletContext()).findActive());
+            req.getRequestDispatcher("/pages/sales.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
     }
 
@@ -50,32 +50,40 @@ public class ExpenseServlet extends HttpServlet {
             return;
         }
         String action = req.getParameter("action");
-        ExpenseDAO eDao = new ExpenseDAO(getServletContext());
+        SaleDAO sDao = new SaleDAO(getServletContext());
         try {
             if ("add".equals(action)) {
-                Expense e = new Expense();
-                e.setCategory(req.getParameter("category"));
-                e.setAmount(new BigDecimal(req.getParameter("amount")));
-                e.setExpenseDate(Date.valueOf(req.getParameter("expenseDate")));
-                e.setDescription(req.getParameter("description"));
-                String lid = req.getParameter("livestockId");
-                e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
-                eDao.insert(e);
+                Sale s = new Sale();
+                s.setLivestockId(Integer.parseInt(req.getParameter("livestockId")));
+                s.setBuyer(req.getParameter("buyer").trim());
+                s.setSaleType(req.getParameter("saleType"));
+                s.setSaleDate(Date.valueOf(req.getParameter("saleDate")));
+                s.setPrice(new BigDecimal(req.getParameter("price")));
+                s.setPaymentStatus(req.getParameter("paymentStatus"));
+                s.setNotes(req.getParameter("notes"));
+                sDao.insert(s);
+                if ("Paid".equals(s.getPaymentStatus())) {
+                    new LivestockDAO(getServletContext()).updateStatus(s.getLivestockId(), "Sold");
+                }
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
-                Expense e = eDao.findById(id);
-                e.setCategory(req.getParameter("category"));
-                e.setAmount(new BigDecimal(req.getParameter("amount")));
-                e.setExpenseDate(Date.valueOf(req.getParameter("expenseDate")));
-                e.setDescription(req.getParameter("description"));
-                String lid = req.getParameter("livestockId");
-                e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
-                eDao.update(e);
+                Sale s = sDao.findById(id);
+                s.setLivestockId(Integer.parseInt(req.getParameter("livestockId")));
+                s.setBuyer(req.getParameter("buyer").trim());
+                s.setSaleType(req.getParameter("saleType"));
+                s.setSaleDate(Date.valueOf(req.getParameter("saleDate")));
+                s.setPrice(new BigDecimal(req.getParameter("price")));
+                s.setPaymentStatus(req.getParameter("paymentStatus"));
+                s.setNotes(req.getParameter("notes"));
+                sDao.update(s);
+                if ("Paid".equals(s.getPaymentStatus())) {
+                    new LivestockDAO(getServletContext()).updateStatus(s.getLivestockId(), "Sold");
+                }
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
-                eDao.delete(id);
+                sDao.delete(id);
             }
-            resp.sendRedirect(req.getContextPath() + "/expenses");
+            resp.sendRedirect(req.getContextPath() + "/sales");
         } catch (Exception e) { throw new ServletException(e); }
     }
 }

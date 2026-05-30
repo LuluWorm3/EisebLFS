@@ -158,6 +158,16 @@
     <url-pattern>/dashboard</url-pattern>
   </servlet-mapping>
 
+  <!-- Admin User Management -->
+  <servlet>
+    <servlet-name>AdminUsersServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.AdminUsersServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminUsersServlet</servlet-name>
+    <url-pattern>/admin/users</url-pattern>
+  </servlet-mapping>
+  
   <!-- ── Welcome ── -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
