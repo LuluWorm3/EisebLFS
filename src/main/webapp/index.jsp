@@ -91,5 +91,22 @@ function showTab(tab) {
     document.getElementById('tab-register').classList.toggle('active', tab === 'register');
 }
 </script>
+<script>
+var pwdInput = document.querySelector("#form-register input[name=password]");
+if(pwdInput) {
+  var meter = document.createElement("div");
+  meter.style.cssText = "height:4px;background:#eee;border-radius:2px;margin-top:4px;transition:all 0.3s";
+  pwdInput.parentNode.appendChild(meter);
+  pwdInput.addEventListener("input",function(){
+    var v=this.value,s=0;
+    if(v.length>=6)s++;
+    if(v.match(/[a-z]/)</body></body>v.match(/[A-Z]/))s++;
+    if(v.match(/\d/))s++;
+    if(v.match(/[^a-zA-Z\d]/))s++;
+    meter.style.width = (s*25)+"%";
+    meter.style.background = s<=1 ? "#f44336" : s==2 ? "#ff9800" : s==3 ? "#2196F3" : "#4CAF50";
+  });
+}
+</script>
 </body>
 </html>

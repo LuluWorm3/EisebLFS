@@ -32,6 +32,7 @@
         <a href="<%= navCp %>/reports"  class="nav-item <%= navUri.contains("/reports")  ? "active" : "" %>"><span class="nav-icon">&#x1F4C8;</span> Financial Reports</a>
 
         <div class="nav-section-label">Support</div>
+        <a href="<%= navCp %>/profile" class="nav-item <%= navUri.contains("/profile") ? "active" : "" %>"><span class="nav-icon">&#x1F464;</span> My Profile</a>
         <a href="<%= navCp %>/contact" class="nav-item <%= navUri.contains("/contact") ? "active" : "" %>"><span class="nav-icon">&#x2709;&#xFE0F;</span> Contact Us</a>
 
         <% if (navUser != null && "admin".equals(navUser.getRole())) { %>
@@ -54,7 +55,6 @@
         btn.addEventListener('click', function() {
             sidebar.classList.toggle('open');
         });
-        // Close sidebar when a link is clicked (mobile)
         sidebar.querySelectorAll('a').forEach(function(link) {
             link.addEventListener('click', function() {
                 sidebar.classList.remove('open');

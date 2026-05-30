@@ -27,7 +27,7 @@
 <body>
 <%@ include file="/WEB-INF/nav.jsp" %>
 <div class="main">
-    <div class="topbar"><span class="page-title">Financial Reports</span></div>
+    <div class="topbar"><span class="page-title">Financial Reports</span> <a href="<%= cp %>/export?type=sales" class="btn btn-sm btn-outline">📥 Export Sales CSV</a> <a href="<%= cp %>/export?type=expenses" class="btn btn-sm btn-outline">📥 Export Expenses CSV</a> <a href="<%= cp %>/export?type=livestock" class="btn btn-sm btn-outline">📥 Export Livestock CSV</a></div>
     <div class="content">
         <div class="section-header">
             <div>

@@ -14,7 +14,6 @@ public class UserDAO {
     private final ServletContext ctx;
     public UserDAO(ServletContext ctx) { this.ctx = ctx; }
 
-    /** Find user by username — returns null if not found. */
     public User findByUsername(String username) throws SQLException {
         String sql = "SELECT id, full_name, username, email, password, role FROM users WHERE username = ?";
         try (Connection conn = DBConnection.getConnection(ctx);
@@ -27,14 +26,12 @@ public class UserDAO {
         return null;
     }
 
-    /** Authenticate: verify username + password. Returns User if OK, null otherwise. */
     public User authenticate(String username, String password) throws SQLException {
         User u = findByUsername(username);
         if (u == null) return null;
         return PasswordUtil.verify(password, u.getPassword()) ? u : null;
     }
 
-    /** Register a new user. Returns false if username/email already exists. */
     public boolean register(String fullName, String username, String email,
                             String plainPassword, String role) throws SQLException {
         String sql = "INSERT INTO users (full_name, username, email, password, role) VALUES (?,?,?,?,?)";
@@ -52,7 +49,6 @@ public class UserDAO {
         }
     }
 
-    /** Return all users (for admin management). */
     public List<User> findAll() throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT id, full_name, username, email, password, role FROM users ORDER BY id";
@@ -64,7 +60,6 @@ public class UserDAO {
         return list;
     }
 
-    /** Update a user's full name, email and role (admin only). */
     public void updateUser(int id, String fullName, String email, String role) throws SQLException {
         String sql = "UPDATE users SET full_name=?, email=?, role=? WHERE id=?";
         try (Connection conn = DBConnection.getConnection(ctx);
@@ -77,7 +72,6 @@ public class UserDAO {
         }
     }
 
-    /** Delete a user (admin only). */
     public void deleteUser(int id) throws SQLException {
         String sql = "DELETE FROM users WHERE id=?";
         try (Connection conn = DBConnection.getConnection(ctx);
@@ -87,7 +81,16 @@ public class UserDAO {
         }
     }
 
-    // ── Mapping ───────────────────────────────────────────────
+    public void updatePassword(int userId, String newPlainPassword) throws SQLException {
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, PasswordUtil.hash(newPlainPassword));
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     private User map(ResultSet rs) throws SQLException {
         User u = new User();
         u.setId(rs.getInt("id"));

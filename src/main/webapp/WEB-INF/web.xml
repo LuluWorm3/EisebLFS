@@ -7,39 +7,13 @@
 
   <display-name>Eiseb Livestock Financial System</display-name>
 
-
-<context-param>
+  <context-param>
     <param-name>db.driver</param-name>
     <param-value>com.mysql.cj.jdbc.Driver</param-value>
-</context-param>
-
-<context-param>
+  </context-param>
+  <context-param>
     <param-name>db.url</param-name>
-<!--    <param-value>jdbc:mysql://localhost:3306/eiseb_lfs?useSSL=false&amp;allowPublicKeyRetrieval=true</param-value>  -->
-    <param-value>jdbc:mysql://localhost:3306/eiseb_lfs?useSSL=false&amp;serverTimezone=UTC</param-value>
-</context-param>
-
-<context-param>
-    <param-name>db.user</param-name>
-    <param-value>eiseb_user</param-value>
-</context-param>
-
-<context-param>
-    <param-name>db.password</param-name>
-    <param-value>Eiseb123@#</param-value>
-</context-param>
-
-  <!-- ── Context Parameters ── -->
-  <!-- 
-<context-param>
-    <param-name>db.url</param-name>
-    -->
-  <!--  <param-value>jdbc:mysql://localhost:3306/eiseb_lfs?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</param-value>  -->
-<!--  
-    <param-value>jdbc:mysql://localhost:3306/eiseb_lfs?useSSL=false&amp;allowPublicKeyRetrieval=true</param-value>
-  
--->  
-    <!--
+    <param-value>jdbc:mysql://localhost:3306/eiseb_lfs?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</param-value>
   </context-param>
   <context-param>
     <param-name>db.user</param-name>
@@ -50,15 +24,9 @@
     <param-value>Eiseb123@#</param-value>
   </context-param>
 
-
--->
-
-  <!-- ── Session config ── -->
   <session-config>
     <session-timeout>60</session-timeout>
   </session-config>
-
-  <!-- ── Servlets ── -->
 
   <!-- Auth -->
   <servlet>
@@ -167,13 +135,33 @@
     <servlet-name>AdminUsersServlet</servlet-name>
     <url-pattern>/admin/users</url-pattern>
   </servlet-mapping>
-  
-  <!-- ── Welcome ── -->
+
+  <!-- CSV Export -->
+  <servlet>
+    <servlet-name>ExportCSVServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.ExportCSVServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExportCSVServlet</servlet-name>
+    <url-pattern>/export</url-pattern>
+  </servlet-mapping>
+
+  <!-- Profile -->
+  <servlet>
+    <servlet-name>ProfileServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.ProfileServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProfileServlet</servlet-name>
+    <url-pattern>/profile</url-pattern>
+  </servlet-mapping>
+
+  <!-- Welcome -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
-  <!-- ── Error pages ── -->
+  <!-- Error pages -->
   <error-page>
     <error-code>404</error-code>
     <location>/pages/error404.jsp</location>
@@ -182,5 +170,4 @@
     <error-code>500</error-code>
     <location>/pages/error500.jsp</location>
   </error-page>
-
 </web-app>

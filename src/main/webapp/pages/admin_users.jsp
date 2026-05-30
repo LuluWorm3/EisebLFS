@@ -11,17 +11,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-    <style>body{display:flex;} .main{flex:1;}
-        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;}
-        .modal-overlay.open{display:flex!important;}
-        .modal{background:#fff;border-radius:4px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);border-top:4px solid #D4A853;}
-        .modal-header{padding:24px 28px 16px;border-bottom:1px solid #E8D9BE;display:flex;justify-content:space-between;align-items:center;}
-        .modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#2C1A0E;}
-        .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#8A7560;}
-        .modal-body{padding:24px 28px;}
-        .modal-footer{padding:16px 28px;border-top:1px solid #E8D9BE;display:flex;gap:10px;justify-content:flex-end;}
+    <style>
+        body { display: flex; }
+        .main { flex: 1; }
+
+        /* ── Bulletproof Modal Styles ── */
+        .modal-overlay {
+            display: none; 
+            position: fixed; 
+            inset: 0;
+            background: rgba(0,0,0,0.55); 
+            z-index: 9999;
+        }
+        .modal-overlay.open {
+            display: block !important;
+        }
+        .modal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff; 
+            border-radius: 4px; 
+            width: 500px;
+            max-width: 95vw; 
+            max-height: 90vh; 
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-top: 4px solid #D4A853;
+        }
+        .modal-header { 
+            padding: 24px 28px 16px; 
+            border-bottom: 1px solid #E8D9BE; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .modal-title { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: #2C1A0E; 
+        }
+        .modal-close { 
+            background: none; 
+            border: none; 
+            font-size: 22px; 
+            cursor: pointer; 
+            color: #8A7560; 
+        }
+        .modal-body { padding: 24px 28px; }
+        .modal-footer { 
+            padding: 16px 28px; 
+            border-top: 1px solid #E8D9BE; 
+            display: flex; 
+            gap: 10px; 
+            justify-content: flex-end; 
+        }
+        #tableSearch {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #D4A853;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -34,8 +90,10 @@
                 <div class="section-title">All Users</div>
                 <div class="section-sub"><%= users != null ? users.size() : 0 %> accounts</div>
             </div>
-            <button class="btn btn-earth" onclick="openModal('addUserModal')">+ Add User</button>
+            <button class="btn btn-earth" id="btnAddUser">+ Add User</button>
         </div>
+
+        <input type="text" id="tableSearch" placeholder="Search...">
 
         <div class="full-card">
             <table>
@@ -53,7 +111,7 @@
                             <td><%= u.getEmail() %></td>
                             <td><span class="badge <%= "admin".equals(u.getRole()) ? "badge-red" : "badge-green" %>"><%= u.getRole() %></span></td>
                             <td style="display:flex;gap:6px;flex-wrap:wrap">
-                                <button class="btn btn-sm btn-outline" onclick="editUser('<%= u.getId() %>','<%= u.getFullName() %>','<%= u.getEmail() %>','<%= u.getRole() %>')">Edit</button>
+                                <button class="btn btn-sm btn-outline" onclick='editUser(<%= u.getId() %>,"<%= u.getFullName() %>","<%= u.getEmail() %>","<%= u.getRole() %>")'>Edit</button>
                                 <% if (currentUser == null || currentUser.getId() != u.getId()) { %>
                                 <form method="post" action="<%= cp %>/admin/users" style="display:inline"
                                       onsubmit="return confirm('Delete user <%= u.getUsername() %>?');">
@@ -73,11 +131,11 @@
 </div>
 
 <%-- Add User Modal --%>
-<div class="modal-overlay" id="addUserModal" onclick="handleOverlayClick(event,'addUserModal')">
+<div class="modal-overlay" id="addUserModal">
     <div class="modal">
         <div class="modal-header">
             <span class="modal-title">Add User</span>
-            <button class="modal-close" onclick="closeModal('addUserModal')" type="button">&times;</button>
+            <button class="modal-close" type="button">&times;</button>
         </div>
         <form method="post" action="<%= cp %>/admin/users">
             <input type="hidden" name="action" value="add">
@@ -95,7 +153,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
                 <button type="submit" class="btn btn-earth">Create User</button>
             </div>
         </form>
@@ -103,11 +161,11 @@
 </div>
 
 <%-- Edit User Modal --%>
-<div class="modal-overlay" id="editUserModal" onclick="handleOverlayClick(event,'editUserModal')">
+<div class="modal-overlay" id="editUserModal">
     <div class="modal">
         <div class="modal-header">
             <span class="modal-title">Edit User</span>
-            <button class="modal-close" onclick="closeModal('editUserModal')" type="button">&times;</button>
+            <button class="modal-close" type="button">&times;</button>
         </div>
         <form method="post" action="<%= cp %>/admin/users">
             <input type="hidden" name="action" value="edit">
@@ -124,7 +182,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="closeModal('editUserModal')">Cancel</button>
+                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
                 <button type="submit" class="btn btn-earth">Update User</button>
             </div>
         </form>
@@ -132,10 +190,50 @@
 </div>
 
 <script>
-    function openModal(id){document.getElementById(id).classList.add('open');}
-    function closeModal(id){document.getElementById(id).classList.remove('open');}
-    function handleOverlayClick(e,id){if(e.target===document.getElementById(id))closeModal(id);}
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));});
+    function openModal(id) { 
+        var m = document.getElementById(id);
+        m.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) { 
+        var m = document.getElementById(id);
+        m.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('btnAddUser').addEventListener('click', function() { openModal('addUserModal'); });
+
+    document.querySelectorAll('.modal-close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            this.closest('.modal-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        });
+    });
+
+    document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            this.closest('.modal-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+                m.classList.remove('open');
+            });
+            document.body.style.overflow = '';
+        }
+    });
 
     function editUser(id, fullName, email, role) {
         document.getElementById('editUserId').value = id;
@@ -144,6 +242,19 @@
         document.getElementById('editRole').value = role;
         openModal('editUserModal');
     }
+
+    var searchInput = document.getElementById('tableSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            var filter = this.value.toUpperCase();
+            var rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(function(row) {
+                var text = row.textContent.toUpperCase();
+                row.style.display = text.indexOf(filter) > -1 ? '' : 'none';
+            });
+        });
+    }
 </script>
+<%@ include file="/WEB-INF/toast.jsp" %>
 </body>
 </html>

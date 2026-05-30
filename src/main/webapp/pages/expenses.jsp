@@ -48,6 +48,7 @@
         </div>
 
         <div class="full-card">
+<input type="text" id="tableSearch" placeholder="Search..." style="margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px;">
             <table>
                 <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Animal</th><th>Amount (N$)</th><th>Actions</th></tr></thead>
                 <tbody>
@@ -189,5 +190,6 @@ openEditModal(
 );
 <% } %>
 </script>
+<script>document.getElementById("tableSearch").addEventListener("keyup",function(){var f=this.value.toUpperCase();document.querySelectorAll("table tbody tr").forEach(function(r){r.style.display=r.textContent.toUpperCase().indexOf(f)>-1?"":"none";});});</script>
 </body>
 </html>

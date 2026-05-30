@@ -16,7 +16,8 @@ public class LivestockServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login"); return;
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
         try {
             LivestockDAO dao = new LivestockDAO(getServletContext());
@@ -44,9 +45,9 @@ public class LivestockServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login"); return;
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
-
         String action = req.getParameter("action");
         try {
             LivestockDAO dao = new LivestockDAO(getServletContext());
@@ -63,6 +64,8 @@ public class LivestockServlet extends HttpServlet {
                 l.setCurrentValue(val != null && !val.isBlank() ? new BigDecimal(val) : BigDecimal.ZERO);
                 l.setStatus("Active");
                 dao.insert(l);
+                req.getSession().setAttribute("toastMsg", "Animal " + l.getTag() + " added successfully.");
+                req.getSession().setAttribute("toastType", "success");
 
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -77,14 +80,22 @@ public class LivestockServlet extends HttpServlet {
                 l.setCurrentValue(val != null && !val.isBlank() ? new BigDecimal(val) : BigDecimal.ZERO);
                 l.setStatus(req.getParameter("status"));
                 dao.update(l);
+                req.getSession().setAttribute("toastMsg", "Animal " + l.getTag() + " updated.");
+                req.getSession().setAttribute("toastType", "success");
 
             } else if ("delete".equals(action)) {
-                dao.delete(Integer.parseInt(req.getParameter("id")));
+                int id = Integer.parseInt(req.getParameter("id"));
+                dao.delete(id);
+                req.getSession().setAttribute("toastMsg", "Animal deleted.");
+                req.getSession().setAttribute("toastType", "success");
 
             } else if ("status".equals(action)) {
-                dao.updateStatus(Integer.parseInt(req.getParameter("id")), req.getParameter("status"));
+                int id = Integer.parseInt(req.getParameter("id"));
+                String status = req.getParameter("status");
+                dao.updateStatus(id, status);
+                req.getSession().setAttribute("toastMsg", "Status changed to " + status + ".");
+                req.getSession().setAttribute("toastType", "success");
             }
-
             resp.sendRedirect(req.getContextPath() + "/livestock");
         } catch (Exception e) {
             throw new ServletException(e);
