@@ -5,7 +5,10 @@
     String navCp = request.getContextPath();
     String navUri = request.getRequestURI();
 %>
-<div class="sidebar">
+<!-- Hamburger toggle (visible on mobile) -->
+<button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
+
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-brand">&#x1F404; Eiseb Country Traders</div>
         <div class="sidebar-sub">Livestock Financial System</div>
@@ -30,7 +33,8 @@
 
         <div class="nav-section-label">Support</div>
         <a href="<%= navCp %>/contact" class="nav-item <%= navUri.contains("/contact") ? "active" : "" %>"><span class="nav-icon">&#x2709;&#xFE0F;</span> Contact Us</a>
-            <% if ("admin".equals(navUser.getRole())) { %>
+
+        <% if (navUser != null && "admin".equals(navUser.getRole())) { %>
         <div class="nav-section-label">Administration</div>
         <a href="<%= navCp %>/admin/users" class="nav-item <%= navUri.contains("/admin/users") ? "active" : "" %>"><span class="nav-icon">&#x1F465;</span> Manage Users</a>
         <% } %>
@@ -41,3 +45,21 @@
         </form>
     </div>
 </div>
+
+<script>
+(function() {
+    var btn = document.getElementById('hamburgerBtn');
+    var sidebar = document.getElementById('sidebar');
+    if (btn && sidebar) {
+        btn.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+        // Close sidebar when a link is clicked (mobile)
+        sidebar.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+            });
+        });
+    }
+})();
+</script>
