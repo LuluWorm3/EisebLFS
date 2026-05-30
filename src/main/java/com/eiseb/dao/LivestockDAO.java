@@ -57,6 +57,24 @@ public class LivestockDAO {
         }
     }
 
+    /** Update an existing animal. (NEW METHOD) */
+    public void update(Livestock l) throws SQLException {
+        String sql = "UPDATE livestock SET tag=?, species=?, breed=?, gender=?, dob=?, current_value=?, status=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, l.getTag());
+            ps.setString(2, l.getSpecies());
+            ps.setString(3, l.getBreed());
+            ps.setString(4, l.getGender());
+            if (l.getDob() != null) ps.setDate(5, l.getDob());
+            else                    ps.setNull(5, Types.DATE);
+            ps.setBigDecimal(6, l.getCurrentValue());
+            ps.setString(7, l.getStatus());
+            ps.setInt(8, l.getId());
+            ps.executeUpdate();
+        }
+    }
+
     /** Update status only (used when marking Sold / Deceased). */
     public void updateStatus(int id, String status) throws SQLException {
         try (Connection conn = DBConnection.getConnection(ctx);

@@ -26,6 +26,20 @@ public class ValuationDAO {
         return list;
     }
 
+    public Valuation findById(int id) throws SQLException {
+        String sql = "SELECT v.*, l.tag AS livestock_tag, l.species AS livestock_species " +
+                     "FROM valuations v JOIN livestock l ON v.livestock_id = l.id " +
+                     "WHERE v.id = ?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+            }
+        }
+        return null;
+    }
+
     public int insert(Valuation v) throws SQLException {
         String sql = "INSERT INTO valuations (livestock_id, val_date, value, method, notes) VALUES (?,?,?,?,?)";
         try (Connection conn = DBConnection.getConnection(ctx);
@@ -39,6 +53,28 @@ public class ValuationDAO {
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 return rs.next() ? rs.getInt(1) : -1;
             }
+        }
+    }
+
+    public void update(Valuation v) throws SQLException {
+        String sql = "UPDATE valuations SET livestock_id=?, val_date=?, value=?, method=?, notes=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, v.getLivestockId());
+            ps.setDate(2, v.getValDate());
+            ps.setBigDecimal(3, v.getValue());
+            ps.setString(4, v.getMethod());
+            ps.setString(5, v.getNotes());
+            ps.setInt(6, v.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM valuations WHERE id = ?")) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
         }
     }
 

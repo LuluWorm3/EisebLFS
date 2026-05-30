@@ -2,6 +2,7 @@ package com.eiseb.servlet;
 
 import com.eiseb.dao.LivestockDAO;
 import com.eiseb.model.Livestock;
+import com.eiseb.util.SecurityUtil;                     // NEW
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -14,10 +15,27 @@ public class LivestockServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        if (!isLoggedIn(req)) { resp.sendRedirect(req.getContextPath() + "/login"); return; }
+        // Any logged‑in user can view
+        if (!SecurityUtil.isLoggedIn(req)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
         try {
             LivestockDAO dao = new LivestockDAO(getServletContext());
+
+            String action = req.getParameter("action");
+            if ("editForm".equals(action)) {
+                // Only managers / admins may edit
+                if (!SecurityUtil.isManagerOrAdmin(req)) {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+                    return;
+                }
+                int id = Integer.parseInt(req.getParameter("id"));
+                Livestock editLivestock = dao.findById(id);
+                req.setAttribute("editLivestock", editLivestock);
+            }
+
             String filter = req.getParameter("filter");
             if (filter != null && !filter.equals("All")) {
                 req.setAttribute("livestock", dao.findByStatus(filter));
@@ -34,7 +52,15 @@ public class LivestockServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        if (!isLoggedIn(req)) { resp.sendRedirect(req.getContextPath() + "/login"); return; }
+        // All write operations require manager or admin
+        if (!SecurityUtil.isLoggedIn(req)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        if (!SecurityUtil.isManagerOrAdmin(req)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+            return;
+        }
 
         String action = req.getParameter("action");
         try {
@@ -52,9 +78,25 @@ public class LivestockServlet extends HttpServlet {
                 l.setCurrentValue(val != null && !val.isBlank() ? new BigDecimal(val) : BigDecimal.ZERO);
                 l.setStatus("Active");
                 dao.insert(l);
+
+            } else if ("edit".equals(action)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                Livestock l = dao.findById(id);
+                l.setTag(req.getParameter("tag").trim().toUpperCase());
+                l.setSpecies(req.getParameter("species"));
+                l.setBreed(req.getParameter("breed"));
+                l.setGender(req.getParameter("gender"));
+                String dob = req.getParameter("dob");
+                if (dob != null && !dob.isBlank()) l.setDob(Date.valueOf(dob));
+                String val = req.getParameter("currentValue");
+                l.setCurrentValue(val != null && !val.isBlank() ? new BigDecimal(val) : BigDecimal.ZERO);
+                l.setStatus(req.getParameter("status"));
+                dao.update(l);
+
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 dao.delete(id);
+
             } else if ("status".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 dao.updateStatus(id, req.getParameter("status"));
@@ -64,9 +106,5 @@ public class LivestockServlet extends HttpServlet {
             throw new ServletException(e);
         }
     }
-
-    private boolean isLoggedIn(HttpServletRequest req) {
-        HttpSession s = req.getSession(false);
-        return s != null && s.getAttribute("currentUser") != null;
-    }
+    // The old private isLoggedIn() is removed – we now use SecurityUtil everywhere.
 }

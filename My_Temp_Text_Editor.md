@@ -15,3 +15,6 @@ http://localhost:8080/EisebLFS/contact
 cd /home/mammon/NetBeansProjects/EisebLFS
 mvn clean package
 cp target/EisebLFS.war ~/GlassFish_Server/glassfish/domains/domain1/autodeploy/
+
+
+

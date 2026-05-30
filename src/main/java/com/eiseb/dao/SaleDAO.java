@@ -27,6 +27,20 @@ public class SaleDAO {
         return list;
     }
 
+    public Sale findById(int id) throws SQLException {
+        String sql = "SELECT s.*, l.tag AS livestock_tag " +
+                     "FROM sales s JOIN livestock l ON s.livestock_id = l.id " +
+                     "WHERE s.id = ?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+            }
+        }
+        return null;
+    }
+
     public int insert(Sale s) throws SQLException {
         String sql = "INSERT INTO sales (livestock_id, buyer, sale_type, sale_date, price, payment_status, notes) " +
                      "VALUES (?,?,?,?,?,?,?)";
@@ -46,7 +60,30 @@ public class SaleDAO {
         }
     }
 
-    /** Total revenue from paid sales. */
+    public void update(Sale s) throws SQLException {
+        String sql = "UPDATE sales SET livestock_id=?, buyer=?, sale_type=?, sale_date=?, price=?, payment_status=?, notes=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, s.getLivestockId());
+            ps.setString(2, s.getBuyer());
+            ps.setString(3, s.getSaleType());
+            ps.setDate(4, s.getSaleDate());
+            ps.setBigDecimal(5, s.getPrice());
+            ps.setString(6, s.getPaymentStatus());
+            ps.setString(7, s.getNotes());
+            ps.setInt(8, s.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM sales WHERE id = ?")) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
     public BigDecimal totalPaidIncome() throws SQLException {
         try (Connection conn = DBConnection.getConnection(ctx);
              PreparedStatement ps = conn.prepareStatement(

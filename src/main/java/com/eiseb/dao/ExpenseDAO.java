@@ -27,6 +27,20 @@ public class ExpenseDAO {
         return list;
     }
 
+    public Expense findById(int id) throws SQLException {
+        String sql = "SELECT e.*, l.tag AS livestock_tag " +
+                     "FROM expenses e LEFT JOIN livestock l ON e.livestock_id = l.id " +
+                     "WHERE e.id = ?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+            }
+        }
+        return null;
+    }
+
     public int insert(Expense e) throws SQLException {
         String sql = "INSERT INTO expenses (category, amount, expense_date, description, livestock_id) " +
                      "VALUES (?,?,?,?,?)";
@@ -45,7 +59,29 @@ public class ExpenseDAO {
         }
     }
 
-    /** Total of all expenses. */
+    public void update(Expense e) throws SQLException {
+        String sql = "UPDATE expenses SET category=?, amount=?, expense_date=?, description=?, livestock_id=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, e.getCategory());
+            ps.setBigDecimal(2, e.getAmount());
+            ps.setDate(3, e.getExpenseDate());
+            ps.setString(4, e.getDescription());
+            if (e.getLivestockId() != null) ps.setInt(5, e.getLivestockId());
+            else                             ps.setNull(5, Types.INTEGER);
+            ps.setInt(6, e.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM expenses WHERE id = ?")) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
     public BigDecimal totalExpenses() throws SQLException {
         try (Connection conn = DBConnection.getConnection(ctx);
              PreparedStatement ps = conn.prepareStatement(
@@ -55,7 +91,6 @@ public class ExpenseDAO {
         }
     }
 
-    /** Totals grouped by category — used in reports chart. */
     public List<Object[]> sumByCategory() throws SQLException {
         String sql = "SELECT category, SUM(amount) AS total FROM expenses GROUP BY category ORDER BY total DESC";
         List<Object[]> rows = new ArrayList<>();

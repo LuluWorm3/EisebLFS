@@ -1,8 +1,9 @@
 package com.eiseb.servlet;
 
+import com.eiseb.dao.ExpenseDAO;
 import com.eiseb.dao.LivestockDAO;
-import com.eiseb.dao.SaleDAO;
-import com.eiseb.model.Sale;
+import com.eiseb.model.Expense;
+import com.eiseb.util.SecurityUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -10,43 +11,71 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-public class SalesServlet extends HttpServlet {
+public class ExpenseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        if (!isLoggedIn(req)) { resp.sendRedirect(req.getContextPath() + "/login"); return; }
+        if (!SecurityUtil.isLoggedIn(req)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
         try {
-            req.setAttribute("sales", new SaleDAO(getServletContext()).findAll());
-            req.setAttribute("activeLivestock", new LivestockDAO(getServletContext()).findActive());
-            req.getRequestDispatcher("/pages/sales.jsp").forward(req, resp);
+            ExpenseDAO eDao = new ExpenseDAO(getServletContext());
+            String action = req.getParameter("action");
+            if ("editForm".equals(action)) {
+                if (!SecurityUtil.isManagerOrAdmin(req)) {
+                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+                    return;
+                }
+                int id = Integer.parseInt(req.getParameter("id"));
+                Expense editExpense = eDao.findById(id);
+                req.setAttribute("editExpense", editExpense);
+            }
+            req.setAttribute("expenses", eDao.findAll());
+            req.setAttribute("allLivestock", new LivestockDAO(getServletContext()).findAll());
+            req.getRequestDispatcher("/pages/expenses.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        if (!isLoggedIn(req)) { resp.sendRedirect(req.getContextPath() + "/login"); return; }
+        if (!SecurityUtil.isLoggedIn(req)) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        if (!SecurityUtil.isManagerOrAdmin(req)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+            return;
+        }
+        String action = req.getParameter("action");
+        ExpenseDAO eDao = new ExpenseDAO(getServletContext());
         try {
-            Sale s = new Sale();
-            s.setLivestockId(Integer.parseInt(req.getParameter("livestockId")));
-            s.setBuyer(req.getParameter("buyer").trim());
-            s.setSaleType(req.getParameter("saleType"));
-            s.setSaleDate(Date.valueOf(req.getParameter("saleDate")));
-            s.setPrice(new BigDecimal(req.getParameter("price")));
-            s.setPaymentStatus(req.getParameter("paymentStatus"));
-            s.setNotes(req.getParameter("notes"));
-            new SaleDAO(getServletContext()).insert(s);
-            // If paid, mark animal as Sold
-            if ("Paid".equals(s.getPaymentStatus())) {
-                new LivestockDAO(getServletContext()).updateStatus(s.getLivestockId(), "Sold");
+            if ("add".equals(action)) {
+                Expense e = new Expense();
+                e.setCategory(req.getParameter("category"));
+                e.setAmount(new BigDecimal(req.getParameter("amount")));
+                e.setExpenseDate(Date.valueOf(req.getParameter("expenseDate")));
+                e.setDescription(req.getParameter("description"));
+                String lid = req.getParameter("livestockId");
+                e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
+                eDao.insert(e);
+            } else if ("edit".equals(action)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                Expense e = eDao.findById(id);
+                e.setCategory(req.getParameter("category"));
+                e.setAmount(new BigDecimal(req.getParameter("amount")));
+                e.setExpenseDate(Date.valueOf(req.getParameter("expenseDate")));
+                e.setDescription(req.getParameter("description"));
+                String lid = req.getParameter("livestockId");
+                e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
+                eDao.update(e);
+            } else if ("delete".equals(action)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                eDao.delete(id);
             }
-            resp.sendRedirect(req.getContextPath() + "/sales");
+            resp.sendRedirect(req.getContextPath() + "/expenses");
         } catch (Exception e) { throw new ServletException(e); }
-    }
-
-    private boolean isLoggedIn(HttpServletRequest req) {
-        HttpSession s = req.getSession(false);
-        return s != null && s.getAttribute("currentUser") != null;
     }
 }
