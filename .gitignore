@@ -1,0 +1,19 @@
+# Build output
+target/
+*.class
+*.war
+*.jar
+
+# IDE files
+nbproject/private/
+build/
+dist/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sensitive files (passwords!)
+src/main/java/com/eiseb/util/DBConnection.java

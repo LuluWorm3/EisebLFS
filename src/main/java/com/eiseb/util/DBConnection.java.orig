@@ -1,0 +1,40 @@
+package com.eiseb.util;
+
+import jakarta.servlet.ServletContext;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DBConnection {
+
+    private static String url;
+    private static String user;
+    private static String password;
+    private static boolean initialized = false;
+
+    public static void init(ServletContext ctx) {
+        url      = ctx.getInitParameter("db.url");
+        user     = ctx.getInitParameter("db.user");
+        password = ctx.getInitParameter("db.password");
+        if (password == null) password = "";
+        initialized = true;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("MySQL JDBC driver not found", e);
+        }
+    }
+
+    public static Connection getConnection(ServletContext ctx) throws SQLException {
+        if (!initialized) init(ctx);
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    public static void close(AutoCloseable... resources) {
+        for (AutoCloseable r : resources) {
+            if (r != null) {
+                try { r.close(); } catch (Exception ignored) {}
+            }
+        }
+    }
+}
