@@ -16,7 +16,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livestock Registry — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-    <style>body{display:flex;} .main{flex:1;}</style>
+    <style>
+        body { display: flex; }
+        .main { flex: 1; }
+        /* Modal — self-contained so it works regardless of main.css edits */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex !important; }
+        .modal {
+            background: white; border-radius: 4px; width: 520px;
+            max-width: 95vw; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-top: 4px solid #D4A853;
+        }
+        .modal-header { padding: 24px 28px 16px; border-bottom: 1px solid #E8D9BE; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title  { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #2C1A0E; }
+        .modal-close  { background: none; border: none; font-size: 22px; cursor: pointer; color: #8A7560; }
+        .modal-body   { padding: 24px 28px; }
+        .modal-footer { padding: 16px 28px; border-top: 1px solid #E8D9BE; display: flex; gap: 10px; justify-content: flex-end; }
+    </style>
 </head>
 <body>
 <%@ include file="/WEB-INF/nav.jsp" %>
@@ -30,12 +51,11 @@
                 <div class="section-title">All Animals</div>
                 <div class="section-sub"><%= livestock != null ? livestock.size() : 0 %> records</div>
             </div>
-            <button class="btn btn-earth" onclick="document.getElementById('addModal').classList.add('open')">+ Add Animal</button>
+            <button class="btn btn-earth" onclick="openModal('addModal')">+ Add Animal</button>
         </div>
 
-        <%-- Filter tabs --%>
         <div class="filter-tabs">
-            <a href="<%= cp %>/livestock" class="filter-tab <%= "All".equals(filter) ? "active" : "" %>">All</a>
+            <a href="<%= cp %>/livestock"                 class="filter-tab <%= "All".equals(filter)      ? "active" : "" %>">All</a>
             <a href="<%= cp %>/livestock?filter=Active"   class="filter-tab <%= "Active".equals(filter)   ? "active" : "" %>">Active</a>
             <a href="<%= cp %>/livestock?filter=Sold"     class="filter-tab <%= "Sold".equals(filter)     ? "active" : "" %>">Sold</a>
             <a href="<%= cp %>/livestock?filter=Deceased" class="filter-tab <%= "Deceased".equals(filter) ? "active" : "" %>">Deceased</a>
@@ -66,15 +86,16 @@
                             <% if (!"Sold".equals(l.getStatus()) && !"Deceased".equals(l.getStatus())) { %>
                             <form method="post" action="<%= cp %>/livestock" style="display:inline">
                                 <input type="hidden" name="action" value="status">
-                                <input type="hidden" name="id" value="<%= l.getId() %>">
+                                <input type="hidden" name="id"     value="<%= l.getId() %>">
                                 <input type="hidden" name="status" value="Deceased">
-                                <button class="btn btn-sm btn-outline" type="submit" onclick="return confirm('Mark as deceased?')">✕ Deceased</button>
+                                <button class="btn btn-sm btn-outline" type="submit"
+                                        onclick="return confirm('Mark <%= l.getTag() %> as deceased?')">✕ Deceased</button>
                             </form>
                             <% } %>
                             <form method="post" action="<%= cp %>/livestock" style="display:inline"
                                   onsubmit="return confirm('Permanently delete <%= l.getTag() %>? This cannot be undone.')">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="<%= l.getId() %>">
+                                <input type="hidden" name="id"     value="<%= l.getId() %>">
                                 <button class="btn btn-sm btn-danger" type="submit">🗑</button>
                             </form>
                         </td>
@@ -88,11 +109,11 @@
 </div>
 
 <%-- Add Animal Modal --%>
-<div class="modal-overlay" id="addModal">
+<div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
     <div class="modal">
         <div class="modal-header">
             <span class="modal-title">Add New Animal</span>
-            <button class="modal-close" onclick="document.getElementById('addModal').classList.remove('open')">&times;</button>
+            <button class="modal-close" onclick="closeModal('addModal')" type="button">&times;</button>
         </div>
         <form method="post" action="<%= cp %>/livestock">
             <input type="hidden" name="action" value="add">
@@ -138,11 +159,22 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="document.getElementById('addModal').classList.remove('open')">Cancel</button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">Cancel</button>
                 <button type="submit" class="btn btn-earth">Add Animal</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function openModal(id)  { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function handleOverlayClick(e, id) {
+        if (e.target === document.getElementById(id)) closeModal(id);
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    });
+</script>
 </body>
 </html>
