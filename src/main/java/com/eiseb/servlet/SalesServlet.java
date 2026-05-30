@@ -17,20 +17,14 @@ public class SalesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         try {
             SaleDAO sDao = new SaleDAO(getServletContext());
             String action = req.getParameter("action");
             if ("editForm".equals(action)) {
-                if (!SecurityUtil.isManagerOrAdmin(req)) {
-                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-                    return;
-                }
                 int id = Integer.parseInt(req.getParameter("id"));
-                Sale editSale = sDao.findById(id);
-                req.setAttribute("editSale", editSale);
+                req.setAttribute("editSale", sDao.findById(id));
             }
             req.setAttribute("sales", sDao.findAll());
             req.setAttribute("activeLivestock", new LivestockDAO(getServletContext()).findActive());
@@ -42,12 +36,7 @@ public class SalesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-        if (!SecurityUtil.isManagerOrAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         String action = req.getParameter("action");
         SaleDAO sDao = new SaleDAO(getServletContext());
@@ -80,8 +69,7 @@ public class SalesServlet extends HttpServlet {
                     new LivestockDAO(getServletContext()).updateStatus(s.getLivestockId(), "Sold");
                 }
             } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                sDao.delete(id);
+                sDao.delete(Integer.parseInt(req.getParameter("id")));
             }
             resp.sendRedirect(req.getContextPath() + "/sales");
         } catch (Exception e) { throw new ServletException(e); }

@@ -17,20 +17,14 @@ public class ValuationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         try {
             ValuationDAO vDao = new ValuationDAO(getServletContext());
             String action = req.getParameter("action");
             if ("editForm".equals(action)) {
-                if (!SecurityUtil.isManagerOrAdmin(req)) {
-                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-                    return;
-                }
                 int id = Integer.parseInt(req.getParameter("id"));
-                Valuation editValuation = vDao.findById(id);
-                req.setAttribute("editValuation", editValuation);
+                req.setAttribute("editValuation", vDao.findById(id));
             }
             req.setAttribute("valuations", vDao.findAll());
             req.setAttribute("activeLivestock", new LivestockDAO(getServletContext()).findActive());
@@ -42,12 +36,7 @@ public class ValuationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-        if (!SecurityUtil.isManagerOrAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         String action = req.getParameter("action");
         ValuationDAO vDao = new ValuationDAO(getServletContext());
@@ -61,6 +50,7 @@ public class ValuationServlet extends HttpServlet {
                 v.setNotes(req.getParameter("notes"));
                 vDao.insert(v);
                 new LivestockDAO(getServletContext()).updateValue(v.getLivestockId(), v.getValue());
+
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 Valuation v = vDao.findById(id);
@@ -71,9 +61,9 @@ public class ValuationServlet extends HttpServlet {
                 v.setNotes(req.getParameter("notes"));
                 vDao.update(v);
                 new LivestockDAO(getServletContext()).updateValue(v.getLivestockId(), v.getValue());
+
             } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                vDao.delete(id);
+                vDao.delete(Integer.parseInt(req.getParameter("id")));
             }
             resp.sendRedirect(req.getContextPath() + "/valuations");
         } catch (Exception e) { throw new ServletException(e); }

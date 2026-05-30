@@ -17,20 +17,14 @@ public class ExpenseServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         try {
             ExpenseDAO eDao = new ExpenseDAO(getServletContext());
             String action = req.getParameter("action");
             if ("editForm".equals(action)) {
-                if (!SecurityUtil.isManagerOrAdmin(req)) {
-                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-                    return;
-                }
                 int id = Integer.parseInt(req.getParameter("id"));
-                Expense editExpense = eDao.findById(id);
-                req.setAttribute("editExpense", editExpense);
+                req.setAttribute("editExpense", eDao.findById(id));
             }
             req.setAttribute("expenses", eDao.findAll());
             req.setAttribute("allLivestock", new LivestockDAO(getServletContext()).findAll());
@@ -42,12 +36,7 @@ public class ExpenseServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-        if (!SecurityUtil.isManagerOrAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
         String action = req.getParameter("action");
         ExpenseDAO eDao = new ExpenseDAO(getServletContext());
@@ -61,6 +50,7 @@ public class ExpenseServlet extends HttpServlet {
                 String lid = req.getParameter("livestockId");
                 e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
                 eDao.insert(e);
+
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 Expense e = eDao.findById(id);
@@ -71,9 +61,9 @@ public class ExpenseServlet extends HttpServlet {
                 String lid = req.getParameter("livestockId");
                 e.setLivestockId((lid != null && !lid.isBlank()) ? Integer.parseInt(lid) : null);
                 eDao.update(e);
+
             } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                eDao.delete(id);
+                eDao.delete(Integer.parseInt(req.getParameter("id")));
             }
             resp.sendRedirect(req.getContextPath() + "/expenses");
         } catch (Exception e) { throw new ServletException(e); }

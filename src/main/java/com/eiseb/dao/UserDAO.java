@@ -6,11 +6,12 @@ import com.eiseb.util.PasswordUtil;
 import jakarta.servlet.ServletContext;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
 
     private final ServletContext ctx;
-
     public UserDAO(ServletContext ctx) { this.ctx = ctx; }
 
     /** Find user by username — returns null if not found. */
@@ -47,7 +48,42 @@ public class UserDAO {
             ps.executeUpdate();
             return true;
         } catch (SQLIntegrityConstraintViolationException e) {
-            return false; // duplicate username or email
+            return false;
+        }
+    }
+
+    /** Return all users (for admin management). */
+    public List<User> findAll() throws SQLException {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT id, full_name, username, email, password, role FROM users ORDER BY id";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(map(rs));
+        }
+        return list;
+    }
+
+    /** Update a user's full name, email and role (admin only). */
+    public void updateUser(int id, String fullName, String email, String role) throws SQLException {
+        String sql = "UPDATE users SET full_name=?, email=?, role=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, fullName);
+            ps.setString(2, email);
+            ps.setString(3, role);
+            ps.setInt(4, id);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Delete a user (admin only). */
+    public void deleteUser(int id) throws SQLException {
+        String sql = "DELETE FROM users WHERE id=?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
         }
     }
 

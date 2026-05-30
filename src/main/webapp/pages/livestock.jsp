@@ -18,42 +18,87 @@
     <title>Livestock Registry — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
     <style>
-        body { display: flex; }
-        .main { flex: 1; }
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.55); z-index: 200;
-            align-items: center; justify-content: center;
+        body  { display: flex; margin: 0; }
+        .main { flex: 1; min-width: 0; }
+
+        /* ═══ MODAL — fully self-contained ═══════════════════════════ */
+        #addModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            /* flexbox only when .open is added */
         }
-        .modal-overlay.open { display: flex !important; }
-        .modal {
-            background: white; border-radius: 4px; width: 520px;
-            max-width: 95vw; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        #addModal.open {
+            display: block;   /* block, not flex — avoids inheriting body flex */
+        }
+        /* Centre the white box using absolute positioning — no flex needed */
+        #addModal .modal-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            border-radius: 4px;
+            width: 540px;
+            max-width: 92vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.35);
             border-top: 4px solid #D4A853;
         }
-        .modal-header { padding: 24px 28px 16px; border-bottom: 1px solid #E8D9BE; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title  { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #2C1A0E; }
-        .modal-close  { background: none; border: none; font-size: 22px; cursor: pointer; color: #8A7560; }
-        .modal-body   { padding: 24px 28px; }
-        .modal-footer { padding: 16px 28px; border-top: 1px solid #E8D9BE; display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-header {
+            padding: 22px 28px 14px;
+            border-bottom: 1px solid #E8D9BE;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2C1A0E;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8A7560;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .modal-body   { padding: 22px 28px; }
+        .modal-footer {
+            padding: 14px 28px;
+            border-top: 1px solid #E8D9BE;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        /* ═══════════════════════════════════════════════════════════ */
     </style>
 </head>
 <body>
 <%@ include file="/WEB-INF/nav.jsp" %>
+
 <div class="main">
     <div class="topbar">
         <span class="page-title">Livestock Registry</span>
     </div>
     <div class="content">
+
         <div class="section-header">
             <div>
                 <div class="section-title">All Animals</div>
                 <div class="section-sub"><%= livestock != null ? livestock.size() : 0 %> records</div>
             </div>
-            <button class="btn btn-earth" onclick="openModal('addModal')">+ Add Animal</button>
+            <button class="btn btn-earth" id="openAddBtn">+ Add Animal</button>
         </div>
 
+        <!-- Filter tabs -->
         <div class="filter-tabs">
             <a href="<%= cp %>/livestock"                 class="filter-tab <%= "All".equals(filter)      ? "active" : "" %>">All</a>
             <a href="<%= cp %>/livestock?filter=Active"   class="filter-tab <%= "Active".equals(filter)   ? "active" : "" %>">Active</a>
@@ -64,146 +109,242 @@
         <div class="full-card">
             <table>
                 <thead>
-                    <tr><th>Tag</th><th>Species</th><th>Breed</th><th>Gender</th><th>DOB</th><th>Value (N$)</th><th>Status</th><th>Actions</th></tr>
+                    <tr>
+                        <th>Tag</th><th>Species</th><th>Breed</th><th>Gender</th>
+                        <th>DOB</th><th>Value (N$)</th><th>Status</th><th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                 <% if (livestock == null || livestock.isEmpty()) { %>
-                    <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">No animals found. Add one above.</td></tr>
-                <% } else { for (Livestock l : livestock) { %>
+                    <tr>
+                        <td colspan="8" style="text-align:center;color:var(--muted);padding:40px 0">
+                            No animals found. Click <strong>+ Add Animal</strong> to get started.
+                        </td>
+                    </tr>
+                <% } else {
+                    for (Livestock l : livestock) { %>
                     <tr>
                         <td><strong style="font-family:'DM Mono',monospace"><%= l.getTag() %></strong></td>
                         <td><%= l.getSpecies() %></td>
                         <td><%= l.getBreed() != null ? l.getBreed() : "—" %></td>
                         <td><%= l.getGender() %></td>
-                        <td style="font-family:'DM Mono',monospace;font-size:12px"><%= l.getDob() != null ? l.getDob() : "—" %></td>
+                        <td style="font-family:'DM Mono',monospace;font-size:12px">
+                            <%= l.getDob() != null ? l.getDob() : "—" %>
+                        </td>
                         <td><%= String.format("%,.2f", l.getCurrentValue()) %></td>
                         <td>
-                            <span class="badge <%= "Active".equals(l.getStatus()) ? "badge-green" : "Sold".equals(l.getStatus()) ? "badge-blue" : "badge-red" %>">
+                            <span class="badge
+                                <%= "Active".equals(l.getStatus())   ? "badge-green" :
+                                    "Sold".equals(l.getStatus())     ? "badge-blue"  : "badge-red" %>">
                                 <%= l.getStatus() %>
                             </span>
                         </td>
-                        <td style="display:flex;gap:6px;flex-wrap:wrap">
-                            <!-- Edit button – loads modal with pre‑filled data -->
-                            <form method="get" action="<%= cp %>/livestock" style="display:inline">
-                                <input type="hidden" name="action" value="editForm">
-                                <input type="hidden" name="id" value="<%= l.getId() %>">
-                                <button class="btn btn-sm btn-outline" type="submit">Edit</button>
-                            </form>
-                            <!-- Quick status change (only for active animals) -->
-                            <% if (!"Sold".equals(l.getStatus()) && !"Deceased".equals(l.getStatus())) { %>
-                            <form method="post" action="<%= cp %>/livestock" style="display:inline">
+                        <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+
+                            <!-- Edit button -->
+                            <button class="btn btn-sm btn-outline"
+                                    onclick="openEditModal(
+                                        '<%= l.getId() %>',
+                                        '<%= l.getTag() %>',
+                                        '<%= l.getSpecies() %>',
+                                        '<%= l.getBreed() != null ? l.getBreed() : "" %>',
+                                        '<%= l.getGender() %>',
+                                        '<%= l.getDob() != null ? l.getDob().toLocalDate().toString() : "" %>',
+                                        '<%= l.getCurrentValue().toPlainString() %>',
+                                        '<%= l.getStatus() %>'
+                                    )">Edit</button>
+
+                            <!-- Mark Deceased (only if Active) -->
+                            <% if ("Active".equals(l.getStatus())) { %>
+                            <form method="post" action="<%= cp %>/livestock" style="display:inline"
+                                  onsubmit="return confirm('Mark <%= l.getTag() %> as deceased?')">
                                 <input type="hidden" name="action" value="status">
                                 <input type="hidden" name="id"     value="<%= l.getId() %>">
                                 <input type="hidden" name="status" value="Deceased">
-                                <button class="btn btn-sm btn-outline" type="submit"
-                                        onclick="return confirm('Mark <%= l.getTag() %> as deceased?')">✕ Deceased</button>
+                                <button class="btn btn-sm btn-outline" type="submit">✕ Deceased</button>
                             </form>
                             <% } %>
+
                             <!-- Delete -->
                             <form method="post" action="<%= cp %>/livestock" style="display:inline"
-                                  onsubmit="return confirm('Permanently delete <%= l.getTag() %>? This cannot be undone.')">
+                                  onsubmit="return confirm('Permanently delete <%= l.getTag() %>?')">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id"     value="<%= l.getId() %>">
                                 <button class="btn btn-sm btn-danger" type="submit">🗑</button>
                             </form>
+
                         </td>
                     </tr>
-                <% }} %>
+                <% } } %>
                 </tbody>
             </table>
             <div class="pagination"><%= livestock != null ? livestock.size() : 0 %> record(s)</div>
         </div>
-    </div>
-</div>
 
-<%-- Add / Edit Modal (dual‑purpose) --%>
-<div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
-    <div class="modal">
+    </div><!-- /content -->
+</div><!-- /main -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     ADD / EDIT MODAL
+     Uses display:block + absolute centering (no flex)
+     ═══════════════════════════════════════════════════ -->
+<div id="addModal">
+    <div class="modal-box">
+
         <div class="modal-header">
-            <span class="modal-title"><%= editLivestock != null ? "Edit Animal" : "Add New Animal" %></span>
-            <button class="modal-close" onclick="closeModal('addModal')" type="button">&times;</button>
+            <span class="modal-title" id="modalTitle">Add New Animal</span>
+            <button class="modal-close" id="closeModalBtn" type="button">&times;</button>
         </div>
-        <form method="post" action="<%= cp %>/livestock">
-            <input type="hidden" name="action" value="<%= editLivestock != null ? "edit" : "add" %>">
-            <% if (editLivestock != null) { %>
-                <input type="hidden" name="id" value="<%= editLivestock.getId() %>">
-            <% } %>
+
+        <form method="post" action="<%= cp %>/livestock" id="animalForm">
+            <input type="hidden" name="action" id="formAction" value="add">
+            <input type="hidden" name="id"     id="formId"     value="">
+
             <div class="modal-body">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Ear Tag *</label>
-                        <input type="text" name="tag" placeholder="ECT-008" required
-                               value="<%= editLivestock != null ? editLivestock.getTag() : "" %>">
+                        <input type="text" name="tag" id="fTag"
+                               placeholder="e.g. ECT-008" required>
                     </div>
                     <div class="form-group">
                         <label>Species *</label>
-                        <select name="species" required>
+                        <select name="species" id="fSpecies" required>
                             <option value="">Select...</option>
-                            <option value="Cattle" <%= editLivestock != null && "Cattle".equals(editLivestock.getSpecies()) ? "selected" : "" %>>Cattle</option>
-                            <option value="Goat" <%= editLivestock != null && "Goat".equals(editLivestock.getSpecies()) ? "selected" : "" %>>Goat</option>
-                            <option value="Sheep" <%= editLivestock != null && "Sheep".equals(editLivestock.getSpecies()) ? "selected" : "" %>>Sheep</option>
+                            <option value="Cattle">Cattle</option>
+                            <option value="Goat">Goat</option>
+                            <option value="Sheep">Sheep</option>
                         </select>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Breed</label>
-                        <input type="text" name="breed" placeholder="e.g. Brahman"
-                               value="<%= editLivestock != null && editLivestock.getBreed() != null ? editLivestock.getBreed() : "" %>">
+                        <input type="text" name="breed" id="fBreed"
+                               placeholder="e.g. Brahman">
                     </div>
                     <div class="form-group">
                         <label>Gender *</label>
-                        <select name="gender" required>
+                        <select name="gender" id="fGender" required>
                             <option value="">Select...</option>
-                            <option value="Male" <%= editLivestock != null && "Male".equals(editLivestock.getGender()) ? "selected" : "" %>>Male</option>
-                            <option value="Female" <%= editLivestock != null && "Female".equals(editLivestock.getGender()) ? "selected" : "" %>>Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
                         </select>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Date of Birth</label>
-                        <input type="date" name="dob"
-                               value="<%= editLivestock != null && editLivestock.getDob() != null ? editLivestock.getDob().toLocalDate().toString() : "" %>">
+                        <input type="date" name="dob" id="fDob">
                     </div>
                     <div class="form-group">
-                        <label>Initial Value (N$)</label>
-                        <input type="number" name="currentValue" step="0.01" min="0" placeholder="0.00"
-                               value="<%= editLivestock != null ? editLivestock.getCurrentValue().toString() : "" %>">
+                        <label>Value (N$)</label>
+                        <input type="number" name="currentValue" id="fValue"
+                               step="0.01" min="0" placeholder="0.00">
                     </div>
                 </div>
-                <% if (editLivestock != null) { %>
-                <div class="form-group">
+
+                <!-- Status field shown only when editing -->
+                <div class="form-group" id="statusRow" style="display:none">
                     <label>Status</label>
-                    <select name="status">
-                        <option value="Active" <%= "Active".equals(editLivestock.getStatus()) ? "selected" : "" %>>Active</option>
-                        <option value="Sold" <%= "Sold".equals(editLivestock.getStatus()) ? "selected" : "" %>>Sold</option>
-                        <option value="Deceased" <%= "Deceased".equals(editLivestock.getStatus()) ? "selected" : "" %>>Deceased</option>
+                    <select name="status" id="fStatus">
+                        <option value="Active">Active</option>
+                        <option value="Sold">Sold</option>
+                        <option value="Deceased">Deceased</option>
                     </select>
                 </div>
-                <% } %>
-            </div>
+
+            </div><!-- /modal-body -->
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">Cancel</button>
-                <button type="submit" class="btn btn-earth"><%= editLivestock != null ? "Update Animal" : "Add Animal" %></button>
+                <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-earth"   id="submitBtn">Add Animal</button>
             </div>
         </form>
-    </div>
-</div>
+
+    </div><!-- /modal-box -->
+</div><!-- /addModal -->
+
 
 <script>
-    function openModal(id)  { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-    function handleOverlayClick(e, id) {
-        if (e.target === document.getElementById(id)) closeModal(id);
-    }
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
-    });
-    // If editing, open the modal automatically on page load
-    <% if (editLivestock != null) { %>
-        openModal('addModal');
-    <% } %>
+/* ── helpers ─────────────────────────────────────────── */
+var modal = document.getElementById('addModal');
+
+function openModal() {
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';   // stop background scroll
+}
+function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+/* ── open for ADD ────────────────────────────────────── */
+document.getElementById('openAddBtn').addEventListener('click', function() {
+    // Reset form to "add" mode
+    document.getElementById('modalTitle').textContent  = 'Add New Animal';
+    document.getElementById('formAction').value        = 'add';
+    document.getElementById('formId').value            = '';
+    document.getElementById('fTag').value              = '';
+    document.getElementById('fSpecies').value          = '';
+    document.getElementById('fBreed').value            = '';
+    document.getElementById('fGender').value           = '';
+    document.getElementById('fDob').value              = '';
+    document.getElementById('fValue').value            = '';
+    document.getElementById('statusRow').style.display = 'none';
+    document.getElementById('submitBtn').textContent   = 'Add Animal';
+    openModal();
+});
+
+/* ── open for EDIT ───────────────────────────────────── */
+function openEditModal(id, tag, species, breed, gender, dob, value, status) {
+    document.getElementById('modalTitle').textContent  = 'Edit Animal';
+    document.getElementById('formAction').value        = 'edit';
+    document.getElementById('formId').value            = id;
+    document.getElementById('fTag').value              = tag;
+    document.getElementById('fSpecies').value          = species;
+    document.getElementById('fBreed').value            = breed;
+    document.getElementById('fGender').value           = gender;
+    document.getElementById('fDob').value              = dob;
+    document.getElementById('fValue').value            = value;
+    document.getElementById('fStatus').value           = status;
+    document.getElementById('statusRow').style.display = 'block';
+    document.getElementById('submitBtn').textContent   = 'Update Animal';
+    openModal();
+}
+
+/* ── close handlers ──────────────────────────────────── */
+document.getElementById('closeModalBtn').addEventListener('click',  closeModal);
+document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+
+// Click the dark backdrop to close
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+});
+
+// Escape key to close
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+
+/* ── auto-open if server returned editLivestock ──────── */
+<% if (editLivestock != null) { %>
+openEditModal(
+    '<%= editLivestock.getId() %>',
+    '<%= editLivestock.getTag() %>',
+    '<%= editLivestock.getSpecies() %>',
+    '<%= editLivestock.getBreed()  != null ? editLivestock.getBreed()  : "" %>',
+    '<%= editLivestock.getGender() %>',
+    '<%= editLivestock.getDob()    != null ? editLivestock.getDob().toLocalDate().toString() : "" %>',
+    '<%= editLivestock.getCurrentValue().toPlainString() %>',
+    '<%= editLivestock.getStatus() %>'
+);
+<% } %>
 </script>
+
 </body>
 </html>

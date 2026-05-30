@@ -4,9 +4,9 @@
     if (session.getAttribute("currentUser") == null) {
         response.sendRedirect(request.getContextPath() + "/login"); return;
     }
-    List<Expense>   expenses     = (List<Expense>)   request.getAttribute("expenses");
-    List<Livestock> all          = (List<Livestock>) request.getAttribute("allLivestock");
-    Expense editExpense          = (Expense) request.getAttribute("editExpense");
+    List<Expense>   expenses    = (List<Expense>)   request.getAttribute("expenses");
+    List<Livestock> allLivestock = (List<Livestock>) request.getAttribute("allLivestock");
+    Expense editExpense         = (Expense) request.getAttribute("editExpense");
     String cp = request.getContextPath();
 %>
 <!DOCTYPE html>
@@ -15,15 +15,23 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Expenses — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-    <style>body{display:flex;} .main{flex:1;}
-        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;}
-        .modal-overlay.open{display:flex!important;}
-        .modal{background:#fff;border-radius:4px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);border-top:4px solid #D4A853;}
-        .modal-header{padding:24px 28px 16px;border-bottom:1px solid #E8D9BE;display:flex;justify-content:space-between;align-items:center;}
-        .modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#2C1A0E;}
-        .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#8A7560;}
-        .modal-body{padding:24px 28px;}
-        .modal-footer{padding:16px 28px;border-top:1px solid #E8D9BE;display:flex;gap:10px;justify-content:flex-end;}
+    <style>
+        body  { display: flex; margin: 0; }
+        .main { flex: 1; min-width: 0; }
+
+        #addModal { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.6); z-index:9999; }
+        #addModal.open { display:block; }
+        #addModal .modal-box {
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+            background:#fff; border-radius:4px; width:540px; max-width:92vw;
+            max-height:90vh; overflow-y:auto;
+            box-shadow:0 24px 64px rgba(0,0,0,0.35); border-top:4px solid #D4A853;
+        }
+        .modal-header { padding:22px 28px 14px; border-bottom:1px solid #E8D9BE; display:flex; justify-content:space-between; align-items:center; }
+        .modal-title  { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:#2C1A0E; }
+        .modal-close  { background:none; border:none; font-size:24px; cursor:pointer; color:#8A7560; line-height:1; padding:0 4px; }
+        .modal-body   { padding:22px 28px; }
+        .modal-footer { padding:14px 28px; border-top:1px solid #E8D9BE; display:flex; gap:10px; justify-content:flex-end; }
     </style>
 </head>
 <body>
@@ -36,7 +44,7 @@
                 <div class="section-title">Expense Records</div>
                 <div class="section-sub"><%= expenses != null ? expenses.size() : 0 %> entries</div>
             </div>
-            <button class="btn btn-earth" onclick="openModal('addModal')">+ Log Expense</button>
+            <button class="btn btn-earth" id="openAddBtn">+ Log Expense</button>
         </div>
 
         <div class="full-card">
@@ -44,7 +52,7 @@
                 <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Animal</th><th>Amount (N$)</th><th>Actions</th></tr></thead>
                 <tbody>
                 <% if (expenses == null || expenses.isEmpty()) { %>
-                    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No expenses recorded yet.</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px 0">No expenses recorded yet. Click <strong>+ Log Expense</strong> to start.</td></tr>
                 <% } else { for (Expense e : expenses) { %>
                     <tr>
                         <td style="font-family:'DM Mono',monospace;font-size:12px"><%= e.getExpenseDate() %></td>
@@ -52,16 +60,20 @@
                         <td><%= e.getDescription() != null ? e.getDescription() : "—" %></td>
                         <td><%= e.getLivestockTag() != null ? e.getLivestockTag() : "—" %></td>
                         <td><strong>N$&nbsp;<%= String.format("%,.2f", e.getAmount()) %></strong></td>
-                        <td style="display:flex;gap:6px;flex-wrap:wrap">
-                            <form method="get" action="<%= cp %>/expenses" style="display:inline">
-                                <input type="hidden" name="action" value="editForm">
-                                <input type="hidden" name="id" value="<%= e.getId() %>">
-                                <button class="btn btn-sm btn-outline" type="submit">Edit</button>
-                            </form>
+                        <td style="display:flex;gap:6px">
+                            <button class="btn btn-sm btn-outline"
+                                onclick="openEditModal(
+                                    '<%= e.getId() %>',
+                                    '<%= e.getCategory() %>',
+                                    '<%= e.getAmount().toPlainString() %>',
+                                    '<%= e.getExpenseDate().toLocalDate().toString() %>',
+                                    '<%= e.getDescription() != null ? e.getDescription().replace("'","\\'") : "" %>',
+                                    '<%= e.getLivestockId() != null ? e.getLivestockId() : "" %>'
+                                )">Edit</button>
                             <form method="post" action="<%= cp %>/expenses" style="display:inline"
-                                  onsubmit="return confirm('Delete this expense?');">
+                                  onsubmit="return confirm('Delete this expense?')">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="<%= e.getId() %>">
+                                <input type="hidden" name="id"     value="<%= e.getId() %>">
                                 <button class="btn btn-sm btn-danger" type="submit">🗑</button>
                             </form>
                         </td>
@@ -74,72 +86,108 @@
     </div>
 </div>
 
-<%-- Add / Edit Modal --%>
-<div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
-    <div class="modal">
+<!-- MODAL -->
+<div id="addModal">
+    <div class="modal-box">
         <div class="modal-header">
-            <span class="modal-title"><%= editExpense != null ? "Edit Expense" : "Log Expense" %></span>
-            <button class="modal-close" onclick="closeModal('addModal')" type="button">&times;</button>
+            <span class="modal-title" id="modalTitle">Log Expense</span>
+            <button class="modal-close" id="closeModalBtn" type="button">&times;</button>
         </div>
         <form method="post" action="<%= cp %>/expenses">
-            <input type="hidden" name="action" value="<%= editExpense != null ? "edit" : "add" %>">
-            <% if (editExpense != null) { %>
-                <input type="hidden" name="id" value="<%= editExpense.getId() %>">
-            <% } %>
+            <input type="hidden" name="action" id="formAction" value="add">
+            <input type="hidden" name="id"     id="formId"     value="">
             <div class="modal-body">
                 <div class="form-row">
                     <div class="form-group">
                         <label>Category *</label>
-                        <select name="category" required>
-                            <option value="Feed" <%= editExpense != null && "Feed".equals(editExpense.getCategory()) ? "selected" : "" %>>Feed</option>
-                            <option value="Vet" <%= editExpense != null && "Vet".equals(editExpense.getCategory()) ? "selected" : "" %>>Vet</option>
-                            <option value="Transport" <%= editExpense != null && "Transport".equals(editExpense.getCategory()) ? "selected" : "" %>>Transport</option>
-                            <option value="Wages" <%= editExpense != null && "Wages".equals(editExpense.getCategory()) ? "selected" : "" %>>Wages</option>
-                            <option value="Equipment" <%= editExpense != null && "Equipment".equals(editExpense.getCategory()) ? "selected" : "" %>>Equipment</option>
-                            <option value="Other" <%= editExpense != null && "Other".equals(editExpense.getCategory()) ? "selected" : "" %>>Other</option>
+                        <select name="category" id="fCategory" required>
+                            <option value="Feed">Feed</option>
+                            <option value="Vet">Vet</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Wages">Wages</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Amount (N$) *</label>
-                        <input type="number" name="amount" step="0.01" min="0" required placeholder="0.00"
-                               value="<%= editExpense != null ? editExpense.getAmount().toString() : "" %>">
+                        <input type="number" name="amount" id="fAmount" step="0.01" min="0" required placeholder="0.00">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Expense Date *</label>
-                    <input type="date" name="expenseDate" required
-                           value="<%= editExpense != null ? editExpense.getExpenseDate().toLocalDate().toString() : "" %>">
+                    <input type="date" name="expenseDate" id="fDate" required>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <input type="text" name="description" placeholder="Brief description..."
-                           value="<%= editExpense != null && editExpense.getDescription() != null ? editExpense.getDescription() : "" %>">
+                    <input type="text" name="description" id="fDesc" placeholder="Brief description...">
                 </div>
                 <div class="form-group">
                     <label>Linked Animal (Optional)</label>
-                    <select name="livestockId">
+                    <select name="livestockId" id="fLivestock">
                         <option value="">— None —</option>
-                        <% if (all != null) { for (Livestock l : all) {
-                            String sel = (editExpense != null && editExpense.getLivestockId() != null && editExpense.getLivestockId() == l.getId()) ? "selected" : "";
-                        %>
-                            <option value="<%= l.getId() %>" <%= sel %>><%= l.getTag() %> — <%= l.getSpecies() %> [<%= l.getStatus() %>]</option>
+                        <% if (allLivestock != null) { for (Livestock l : allLivestock) { %>
+                        <option value="<%= l.getId() %>">
+                            <%= l.getTag() %> — <%= l.getSpecies() %> [<%= l.getStatus() %>]
+                        </option>
                         <% }} %>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">Cancel</button>
-                <button type="submit" class="btn btn-earth"><%= editExpense != null ? "Update Expense" : "Save Expense" %></button>
+                <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-earth"   id="submitBtn">Save Expense</button>
             </div>
         </form>
     </div>
 </div>
+
 <script>
-    function openModal(id){document.getElementById(id).classList.add('open');}
-    function closeModal(id){document.getElementById(id).classList.remove('open');}
-    function handleOverlayClick(e,id){if(e.target===document.getElementById(id))closeModal(id);}
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));});
-    <% if (editExpense != null) { %> openModal('addModal'); <% } %>
+var modal = document.getElementById('addModal');
+function openModal()  { modal.classList.add('open');    document.body.style.overflow='hidden'; }
+function closeModal() { modal.classList.remove('open'); document.body.style.overflow=''; }
+
+document.getElementById('openAddBtn').addEventListener('click', function() {
+    document.getElementById('modalTitle').textContent     = 'Log Expense';
+    document.getElementById('formAction').value   = 'add';
+    document.getElementById('formId').value       = '';
+    document.getElementById('fCategory').value   = 'Feed';
+    document.getElementById('fAmount').value      = '';
+    document.getElementById('fDate').value        = '';
+    document.getElementById('fDesc').value        = '';
+    document.getElementById('fLivestock').value  = '';
+    document.getElementById('submitBtn').textContent = 'Save Expense';
+    openModal();
+});
+
+function openEditModal(id, category, amount, date, desc, livestockId) {
+    document.getElementById('modalTitle').textContent     = 'Edit Expense';
+    document.getElementById('formAction').value   = 'edit';
+    document.getElementById('formId').value       = id;
+    document.getElementById('fCategory').value   = category;
+    document.getElementById('fAmount').value      = amount;
+    document.getElementById('fDate').value        = date;
+    document.getElementById('fDesc').value        = desc;
+    document.getElementById('fLivestock').value  = livestockId;
+    document.getElementById('submitBtn').textContent = 'Update Expense';
+    openModal();
+}
+
+document.getElementById('closeModalBtn').addEventListener('click',  closeModal);
+document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+<% if (editExpense != null) { %>
+openEditModal(
+    '<%= editExpense.getId() %>',
+    '<%= editExpense.getCategory() %>',
+    '<%= editExpense.getAmount().toPlainString() %>',
+    '<%= editExpense.getExpenseDate().toLocalDate().toString() %>',
+    '<%= editExpense.getDescription() != null ? editExpense.getDescription().replace("'","\\'") : "" %>',
+    '<%= editExpense.getLivestockId() != null ? editExpense.getLivestockId() : "" %>'
+);
+<% } %>
 </script>
 </body>
 </html>

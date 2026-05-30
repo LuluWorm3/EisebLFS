@@ -2,7 +2,7 @@ package com.eiseb.servlet;
 
 import com.eiseb.dao.LivestockDAO;
 import com.eiseb.model.Livestock;
-import com.eiseb.util.SecurityUtil;                     // NEW
+import com.eiseb.util.SecurityUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -15,25 +15,16 @@ public class LivestockServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // Any logged‑in user can view
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
-
         try {
             LivestockDAO dao = new LivestockDAO(getServletContext());
 
             String action = req.getParameter("action");
             if ("editForm".equals(action)) {
-                // Only managers / admins may edit
-                if (!SecurityUtil.isManagerOrAdmin(req)) {
-                    resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-                    return;
-                }
                 int id = Integer.parseInt(req.getParameter("id"));
-                Livestock editLivestock = dao.findById(id);
-                req.setAttribute("editLivestock", editLivestock);
+                req.setAttribute("editLivestock", dao.findById(id));
             }
 
             String filter = req.getParameter("filter");
@@ -52,14 +43,8 @@ public class LivestockServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // All write operations require manager or admin
         if (!SecurityUtil.isLoggedIn(req)) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-        if (!SecurityUtil.isManagerOrAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-            return;
+            resp.sendRedirect(req.getContextPath() + "/login"); return;
         }
 
         String action = req.getParameter("action");
@@ -94,17 +79,15 @@ public class LivestockServlet extends HttpServlet {
                 dao.update(l);
 
             } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                dao.delete(id);
+                dao.delete(Integer.parseInt(req.getParameter("id")));
 
             } else if ("status".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                dao.updateStatus(id, req.getParameter("status"));
+                dao.updateStatus(Integer.parseInt(req.getParameter("id")), req.getParameter("status"));
             }
+
             resp.sendRedirect(req.getContextPath() + "/livestock");
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
-    // The old private isLoggedIn() is removed – we now use SecurityUtil everywhere.
 }
