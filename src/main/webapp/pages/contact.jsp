@@ -11,6 +11,7 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Contact Us — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <% if (loggedIn) { %><style>body{display:flex;} .main{flex:1;}</style><% } %>
 </head>
 <body>
@@ -89,7 +90,9 @@
                 <% if (loggedIn && enquiries != null && !enquiries.isEmpty()) { %>
                 <div class="card">
                     <div class="card-header"><span class="card-title">Recent Enquiries</span></div>
-                    <table>
+                    <div class="table-responsive">
+<div class="table-responsive">
+<table>
                         <thead><tr><th>Name</th><th>Subject</th><th>Date</th></tr></thead>
                         <tbody>
                         <% for (Enquiry e : enquiries) { %>
@@ -97,10 +100,23 @@
                                 <td><%= e.getFullName() %><br><small style="color:var(--muted)"><%= e.getEmail() %></small></td>
                                 <td><%= e.getSubject() != null ? e.getSubject() : "—" %></td>
                                 <td style="font-family:'DM Mono',monospace;font-size:11px"><%= e.getSubmittedAt() %></td>
+                                <td>
+    <%= e.getReply() != null ? e.getReply() : "" %>
+    <% if (loggedIn && "admin".equals(((User)session.getAttribute("currentUser")).getRole())) { %>
+        <form method="post" action="<%= cp %>/contact" style="margin-top:4px;">
+            <input type="hidden" name="action" value="reply">
+            <input type="hidden" name="id" value="<%= e.getId() %>">
+            <textarea name="reply" rows="2" style="width:100%;"></textarea>
+            <button type="submit" class="btn btn-sm btn-earth">Reply</button>
+        </form>
+    <% } %>
+</td>
                             </tr>
                         <% } %>
                         </tbody>
                     </table>
+</div>
+</div>
                 </div>
                 <% } %>
             </div>

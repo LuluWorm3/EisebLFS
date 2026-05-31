@@ -156,6 +156,24 @@
     <url-pattern>/profile</url-pattern>
   </servlet-mapping>
 
+  <!-- Audit Log -->
+  <servlet>
+    <servlet-name>AdminAuditServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.AdminAuditServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminAuditServlet</servlet-name>
+    <url-pattern>/admin/audit</url-pattern>
+  </servlet-mapping>
+  <!-- Help -->
+  <servlet>
+    <servlet-name>HelpServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.HelpServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>HelpServlet</servlet-name>
+    <url-pattern>/help</url-pattern>
+  </servlet-mapping>
   <!-- Welcome -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>

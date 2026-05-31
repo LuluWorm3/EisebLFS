@@ -11,9 +11,6 @@
     List<Sale> sales     = (List<Sale>) request.getAttribute("recentSales");
     List<Expense> exps   = (List<Expense>) request.getAttribute("recentExpenses");
     List<Object[]> cats  = (List<Object[]>) request.getAttribute("expByCategory");
-
-    BigDecimal maxCat = BigDecimal.ONE;
-    if (cats != null) for (Object[] r : cats) { BigDecimal v = (BigDecimal)r[1]; if (v.compareTo(maxCat) > 0) maxCat = v; }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +19,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body { display:flex; }
         .main { flex:1; }
@@ -35,8 +33,6 @@
         <span class="date-badge" id="today-date"></span>
     </div>
     <div class="content">
-
-        <%-- Stat cards --%>
         <div class="stat-grid">
             <div class="stat-card green">
                 <div class="stat-icon">💰</div>
@@ -66,10 +62,7 @@
             </div>
         </div>
 
-        <%-- Main grid --%>
         <div class="dash-grid">
-
-            <%-- Recent Sales --%>
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">Recent Sales</span>
@@ -96,37 +89,14 @@
                 </table>
             </div>
 
-            <%-- Expenses by category --%>
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">Expenses by Category</span>
                     <a href="<%= request.getContextPath() %>/expenses" class="btn btn-sm btn-outline">View All</a>
                 </div>
-                <div class="chart-bar-wrap">
-                <% if (cats == null || cats.isEmpty()) { %>
-                    <p style="color:var(--muted);text-align:center;padding:16px">No expense data</p>
-                <% } else {
-                    String[] barColors = {"","green","red","blue","","green","red"};
-                    int ci = 0;
-                    for (Object[] row : cats) {
-                        String cat = (String) row[0];
-                        BigDecimal val = (BigDecimal) row[1];
-                        int pct = val.multiply(new BigDecimal(100)).divide(maxCat, 0, java.math.RoundingMode.HALF_UP).intValue();
-                        String color = barColors[ci % barColors.length]; ci++;
-                %>
-                <div class="chart-row">
-                    <div class="chart-label"><%= cat %></div>
-                    <div class="chart-bar-bg">
-                        <div class="chart-bar-fill <%= color %>" style="width:<%= pct %>%">
-                            N$<%= String.format("%,.0f", val) %>
-                        </div>
-                    </div>
-                </div>
-                <% } } %>
-                </div>
+                <canvas id="expenseChart" height="200" style="max-height:200px;"></canvas>
             </div>
 
-            <%-- Recent Expenses --%>
             <div class="card" style="grid-column: 1 / -1;">
                 <div class="card-header">
                     <span class="card-title">Recent Expenses</span>
@@ -149,12 +119,25 @@
                     </tbody>
                 </table>
             </div>
-
-        </div><%-- /dash-grid --%>
+        </div>
     </div>
 </div>
 <script>
     document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-NA', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    <% if (cats != null && !cats.isEmpty()) { %>
+    var ctx = document.getElementById('expenseChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [<% for (Object[] row : cats) { out.print("\"" + row[0] + "\","); } %>],
+            datasets: [{
+                data: [<% for (Object[] row : cats) { out.print(row[1] + ","); } %>],
+                backgroundColor: ['#4CAF50','#FF6384','#36A2EB','#FFCE56','#9966FF','#8B5E3C']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+    <% } %>
 </script>
 </body>
 </html>

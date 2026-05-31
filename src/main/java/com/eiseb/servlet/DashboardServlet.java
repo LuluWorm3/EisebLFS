@@ -6,6 +6,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class DashboardServlet extends HttpServlet {
 
@@ -25,10 +26,19 @@ public class DashboardServlet extends HttpServlet {
             BigDecimal net       = income.subtract(expenses);
             int activeLivestock  = lsDAO.countByStatus("Active");
 
+            // Profit margin
+            BigDecimal profitMargin = BigDecimal.ZERO;
+            if (income.compareTo(BigDecimal.ZERO) > 0) {
+                profitMargin = income.subtract(expenses)
+                    .multiply(new BigDecimal(100))
+                    .divide(income, 1, RoundingMode.HALF_UP);
+            }
+
             req.setAttribute("totalIncome",    income);
             req.setAttribute("totalExpenses",  expenses);
             req.setAttribute("netPosition",    net);
             req.setAttribute("activeLivestock",activeLivestock);
+            req.setAttribute("profitMargin",   profitMargin);
             req.setAttribute("recentSales",    saleDAO.findAll().stream().limit(5).toList());
             req.setAttribute("recentExpenses", expDAO.findAll().stream().limit(5).toList());
             req.setAttribute("expByCategory",  expDAO.sumByCategory());

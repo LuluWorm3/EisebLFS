@@ -39,6 +39,16 @@ public class EnquiryDAO {
         }
     }
 
+    public void reply(int id, String replyText) throws SQLException {
+        String sql = "UPDATE enquiries SET reply = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, replyText);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        }
+    }
+
     private Enquiry map(ResultSet rs) throws SQLException {
         Enquiry e = new Enquiry();
         e.setId(rs.getInt("id"));
@@ -46,6 +56,7 @@ public class EnquiryDAO {
         e.setEmail(rs.getString("email"));
         e.setSubject(rs.getString("subject"));
         e.setMessage(rs.getString("message"));
+        e.setReply(rs.getString("reply"));
         e.setSubmittedAt(rs.getTimestamp("submitted_at"));
         return e;
     }

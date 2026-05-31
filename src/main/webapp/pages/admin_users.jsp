@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { display: flex; }
         .main { flex: 1; }
@@ -96,7 +97,9 @@
         <input type="text" id="tableSearch" placeholder="Search...">
 
         <div class="full-card">
-            <table>
+            <div class="table-responsive">
+<div class="table-responsive">
+<table>
                 <thead><tr><th>ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
                 <tbody>
                 <% if (users == null || users.isEmpty()) { %>
@@ -126,6 +129,8 @@
                 } %>
                 </tbody>
             </table>
+</div>
+</div>
         </div>
     </div>
 </div>
@@ -254,6 +259,33 @@
             });
         });
     }
+</script>
+<script>
+document.querySelectorAll('table thead th').forEach(function(th, colIndex) {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', function() {
+        var table = th.closest('table');
+        var tbody = table.querySelector('tbody');
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        var ascending = th.classList.contains('sorted-asc');
+        // Reset all headers
+        table.querySelectorAll('th').forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
+        // Toggle direction
+        th.classList.add(ascending ? 'sorted-desc' : 'sorted-asc');
+        rows.sort(function(a, b) {
+            var aVal = a.cells[colIndex].textContent.trim().toLowerCase();
+            var bVal = b.cells[colIndex].textContent.trim().toLowerCase();
+            // Try numeric
+            var aNum = parseFloat(aVal.replace(/[^0-9.-]/g, ''));
+            var bNum = parseFloat(bVal.replace(/[^0-9.-]/g, ''));
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                return ascending ? (bNum - aNum) : (aNum - bNum);
+            }
+            return ascending ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
+        });
+        rows.forEach(function(row) { tbody.appendChild(row); });
+    });
+});
 </script>
 <%@ include file="/WEB-INF/toast.jsp" %>
 </body>

@@ -33,13 +33,16 @@
 
         <div class="nav-section-label">Support</div>
         <a href="<%= navCp %>/profile" class="nav-item <%= navUri.contains("/profile") ? "active" : "" %>"><span class="nav-icon">&#x1F464;</span> My Profile</a>
+        <a href="<%= navCp %>/help" class="nav-item <%= navUri.contains("/help") ? "active" : "" %>"><span class="nav-icon">&#x2753;</span> Help</a>
         <a href="<%= navCp %>/contact" class="nav-item <%= navUri.contains("/contact") ? "active" : "" %>"><span class="nav-icon">&#x2709;&#xFE0F;</span> Contact Us</a>
 
         <% if (navUser != null && "admin".equals(navUser.getRole())) { %>
         <div class="nav-section-label">Administration</div>
         <a href="<%= navCp %>/admin/users" class="nav-item <%= navUri.contains("/admin/users") ? "active" : "" %>"><span class="nav-icon">&#x1F465;</span> Manage Users</a>
+        <a href="<%= navCp %>/admin/audit" class="nav-item <%= navUri.contains("/admin/audit") ? "active" : "" %>"><span class="nav-icon">&#x1F4DD;</span> Audit Log</a>
         <% } %>
     </nav>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <div class="sidebar-footer">
         <form action="<%= navCp %>/logout" method="post">
             <button class="btn-logout" type="submit">&#x2B05; Sign Out</button>

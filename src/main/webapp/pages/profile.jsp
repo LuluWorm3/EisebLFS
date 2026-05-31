@@ -7,6 +7,7 @@
 %>
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>My Profile — Eiseb LFS</title><link rel="stylesheet" href="<%= cp %>/css/main.css"><style>body{display:flex;}.main{flex:1;}</style></head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
 <%@ include file="/WEB-INF/nav.jsp" %>
 <div class="main">

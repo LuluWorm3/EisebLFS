@@ -100,7 +100,6 @@ if(pwdInput) {
   pwdInput.addEventListener("input",function(){
     var v=this.value,s=0;
     if(v.length>=6)s++;
-    if(v.match(/[a-z]/)</body></body>v.match(/[A-Z]/))s++;
     if(v.match(/\d/))s++;
     if(v.match(/[^a-zA-Z\d]/))s++;
     meter.style.width = (s*25)+"%";

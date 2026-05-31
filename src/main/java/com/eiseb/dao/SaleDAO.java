@@ -102,6 +102,22 @@ public class SaleDAO {
         }
     }
 
+    /** Return sales within a date range. */
+    public List<Sale> findByDateRange(Date start, Date end) throws SQLException {
+        String sql = "SELECT s.*, l.tag AS livestock_tag FROM sales s JOIN livestock l ON s.livestock_id = l.id " +
+                     "WHERE s.sale_date BETWEEN ? AND ? ORDER BY s.sale_date DESC";
+        List<Sale> list = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, start);
+            ps.setDate(2, end);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+        }
+        return list;
+    }
+
     private Sale map(ResultSet rs) throws SQLException {
         Sale s = new Sale();
         s.setId(rs.getInt("id"));

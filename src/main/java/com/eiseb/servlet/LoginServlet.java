@@ -22,34 +22,44 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        HttpSession session = req.getSession(true);
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        
-        System.out.println("=== LOGIN ATTEMPT ===");
-        System.out.println("Username: " + username);
-        System.out.println("Password: " + (password != null ? "***" : "null"));
+
+        // Check lockout
+        Long lockoutEnd = (Long) session.getAttribute("lockoutEnd");
+        if (lockoutEnd != null && System.currentTimeMillis() < lockoutEnd) {
+            long minsLeft = (lockoutEnd - System.currentTimeMillis()) / 60000 + 1;
+            req.setAttribute("loginError", "Too many attempts. Try again in " + minsLeft + " minute(s).");
+            req.getRequestDispatcher("/index.jsp").forward(req, resp);
+            return;
+        }
 
         try {
             UserDAO dao = new UserDAO(getServletContext());
-            System.out.println("UserDAO created, attempting authentication...");
-            
             User user = dao.authenticate(username, password);
-            System.out.println("Authentication result: " + (user != null ? "SUCCESS - " + user.getUsername() : "FAILED"));
-            
+
             if (user != null) {
-                HttpSession session = req.getSession(true);
+                session.removeAttribute("loginAttempts");
+                session.removeAttribute("lockoutEnd");
                 session.setAttribute("currentUser", user);
                 session.setMaxInactiveInterval(60 * 60);
-                System.out.println("Redirecting to dashboard");
                 resp.sendRedirect(req.getContextPath() + "/dashboard");
             } else {
-                System.out.println("Login failed - invalid credentials");
-                req.setAttribute("loginError", "Invalid username or password.");
+                Integer attempts = (Integer) session.getAttribute("loginAttempts");
+                if (attempts == null) attempts = 0;
+                attempts++;
+                session.setAttribute("loginAttempts", attempts);
+
+                if (attempts >= 3) {
+                    session.setAttribute("lockoutEnd", System.currentTimeMillis() + 10 * 60 * 1000);
+                    req.setAttribute("loginError", "Too many failed attempts. Account locked for 10 minutes.");
+                } else {
+                    req.setAttribute("loginError", "Invalid username or password. Attempts: " + attempts);
+                }
                 req.getRequestDispatcher("/index.jsp").forward(req, resp);
             }
         } catch (Exception e) {
-            System.out.println("DATABASE ERROR: " + e.getMessage());
-            e.printStackTrace();
             req.setAttribute("loginError", "Database error: " + e.getMessage());
             req.getRequestDispatcher("/index.jsp").forward(req, resp);
         }

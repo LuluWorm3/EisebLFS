@@ -288,3 +288,78 @@ tbody tr:hover { background: var(--surface); }
         align-items: flex-start;
     }
 }
+/* ── Mobile table horizontal scroll ── */
+@media (max-width: 768px) {
+  .full-card,
+  .card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;   /* ensures table doesn't squeeze into nothing */
+  }
+}
+
+/* ── Mobile table horizontal scroll ── */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .table-responsive table {
+        min-width: 600px;   /* ensures table doesn't crush */
+    }
+}
+
+/* ── Print Styles ── */
+@media print {
+    body { display: block; }
+    .sidebar, .hamburger, .topbar, .btn, .no-print, .filter-tabs,
+    .section-header, .modal-overlay, .btn-logout, form {
+        display: none !important;
+    }
+    .main { margin-left: 0 !important; padding-top: 0 !important; }
+    .content { padding: 0; }
+    table { font-size: 10px; border-collapse: collapse; width: 100%; }
+    th, td { padding: 4px; border: 1px solid #ccc; }
+    .badge { border: 1px solid #000; padding: 1px 4px; font-size: 9px; }
+}
+
+/* Searchable Select */
+.searchable-select {
+    position: relative;
+}
+.searchable-select input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #D4A853;
+    border-radius: 4px;
+}
+.searchable-select .dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #D4A853;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    z-index: 1000;
+    display: none;
+}
+.searchable-select .dropdown-list.open {
+    display: block;
+}
+.searchable-select .dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.searchable-select .dropdown-item:hover {
+    background: #F5E6CC;
+}

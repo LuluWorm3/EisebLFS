@@ -104,6 +104,22 @@ public class ExpenseDAO {
         return rows;
     }
 
+    /** Return expenses within a date range. */
+    public List<Expense> findByDateRange(Date start, Date end) throws SQLException {
+        String sql = "SELECT e.*, l.tag AS livestock_tag FROM expenses e LEFT JOIN livestock l ON e.livestock_id = l.id " +
+                     "WHERE e.expense_date BETWEEN ? AND ? ORDER BY e.expense_date DESC";
+        List<Expense> list = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection(ctx);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, start);
+            ps.setDate(2, end);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+        }
+        return list;
+    }
+
     private Expense map(ResultSet rs) throws SQLException {
         Expense e = new Expense();
         e.setId(rs.getInt("id"));
