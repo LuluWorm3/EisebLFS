@@ -38,7 +38,7 @@
             <form action="<%= request.getContextPath() %>/login" method="post">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" placeholder="admin" required autofocus>
+                    <input type="text" name="username" placeholder="Username" required autofocus>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
@@ -46,7 +46,6 @@
                 </div>
                 <button type="submit" class="btn-primary-wide">Sign In </button>
             </form>
-            <div class="auth-hint">Default login: <strong>admin</strong> / <strong>admin123</strong></div>
         </div>
 
         <%-- REGISTER FORM --%>

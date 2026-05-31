@@ -272,27 +272,27 @@
         <p class="section-sub">A complete ERP module for livestock financial management — covering every stage from animal registration through to financial reporting.</p>
         <div class="modules-grid">
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?w=500&h=220&fit=crop" alt="Livestock" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/livestock-registry.jpg" alt="Livestock" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Livestock Registry</h3><p>Register animals with ear tags, species, breed, gender and date of birth. Filter by Active, Sold, or Deceased status.</p><span class="module-tag">Identification</span></div>
             </div>
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1554260570-83b4d7e0c3e8?w=500&h=220&fit=crop&auto=format" alt="Finance" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/sales-finance.jpg" alt="Finance" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Sales & Income</h3><p>Record direct sales, auction results and export transactions. Track payment status and automatically mark animals as Sold.</p><span class="module-tag">Revenue Tracking</span></div>
             </div>
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=220&fit=crop" alt="Reports" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/reports.jpg" alt="Reports" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Financial Reports</h3><p>Income vs expense summaries, net position tracking and category-level expense breakdowns. Printable for audit purposes.</p><span class="module-tag">Analytics</span></div>
             </div>
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1607863680198-23d4b2565df0?w=500&h=220&fit=crop" alt="Valuations" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/valuations.jpg" alt="Valuations" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Valuations</h3><p>Record periodic valuations per animal using market survey or veterinary assessment methods. History tracked over time.</p><span class="module-tag">Asset Valuation</span></div>
             </div>
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=500&h=220&fit=crop" alt="Expenses" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/expenses.jpg" alt="Expenses" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Expenses</h3><p>Log feed, vet, transport, wages and equipment costs. Optionally link expenses to specific animals for per-animal costing.</p><span class="module-tag">Cost Management</span></div>
             </div>
             <div class="module-card">
-                <div class="module-card-img"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=220&fit=crop" alt="Dashboard" onerror="this.style.display='none'"></div>
+                <div class="module-card-img"><img src="images/dashboard.jpg" alt="Dashboard" onerror="this.style.display='none'"></div>
                 <div class="module-card-body"><h3>Dashboard</h3><p>Live overview of total income, expenses, net position and active livestock count. Visual charts for quick decision-making.</p><span class="module-tag">Operations Overview</span></div>
             </div>
         </div>
