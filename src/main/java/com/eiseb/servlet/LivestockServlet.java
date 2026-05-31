@@ -10,10 +10,11 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.SQLIntegrityConstraintViolationException;
 
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024,
@@ -75,7 +76,7 @@ public class LivestockServlet extends HttpServlet {
                 l.setCurrentValue(val != null && !val.isBlank() ? new BigDecimal(val) : BigDecimal.ZERO);
                 l.setStatus("Active");
 
-                // --- Image upload ---
+                // --- IMAGE UPLOAD (manual stream copy) ---
                 try {
                     Part filePart = req.getPart("image");
                     if (filePart != null && filePart.getSize() > 0) {
@@ -83,12 +84,23 @@ public class LivestockServlet extends HttpServlet {
                         if (fileName != null && !fileName.isEmpty()) {
                             File dir = new File(UPLOAD_DIR);
                             if (!dir.exists()) dir.mkdirs();
-                            String filePath = UPLOAD_DIR + File.separator + fileName;
-                            filePart.write(filePath);
+                            File outFile = new File(UPLOAD_DIR, fileName);
+                            try (InputStream in = filePart.getInputStream();
+                                 FileOutputStream out = new FileOutputStream(outFile)) {
+                                byte[] buffer = new byte[8192];
+                                int bytesRead;
+                                while ((bytesRead = in.read(buffer)) != -1) {
+                                    out.write(buffer, 0, bytesRead);
+                                }
+                            }
+                            System.out.println("Image saved to: " + outFile.getAbsolutePath());
                             l.setImagePath(fileName);
                         }
                     }
-                } catch (Exception ex) { ex.printStackTrace(); }
+                } catch (Exception ex) {
+                    System.out.println("UPLOAD FAILED:");
+                    ex.printStackTrace();
+                }
 
                 int newId = dao.insert(l);
                 req.getSession().setAttribute("toastMsg", "Animal " + l.getTag() + " added successfully.");
@@ -115,8 +127,15 @@ public class LivestockServlet extends HttpServlet {
                         if (fileName != null && !fileName.isEmpty()) {
                             File dir = new File(UPLOAD_DIR);
                             if (!dir.exists()) dir.mkdirs();
-                            String filePath = UPLOAD_DIR + File.separator + fileName;
-                            filePart.write(filePath);
+                            File outFile = new File(UPLOAD_DIR, fileName);
+                            try (InputStream in = filePart.getInputStream();
+                                 FileOutputStream out = new FileOutputStream(outFile)) {
+                                byte[] buffer = new byte[8192];
+                                int bytesRead;
+                                while ((bytesRead = in.read(buffer)) != -1) {
+                                    out.write(buffer, 0, bytesRead);
+                                }
+                            }
                             l.setImagePath(fileName);
                         }
                     }
@@ -152,14 +171,7 @@ public class LivestockServlet extends HttpServlet {
                 }
             }
             resp.sendRedirect(req.getContextPath() + "/livestock");
-        } catch (SQLIntegrityConstraintViolationException dupEx) {
-            // Duplicate tag – friendly message
-            req.getSession().setAttribute("toastMsg", "Tag already exists. Please choose a unique tag.");
-            req.getSession().setAttribute("toastType", "error");
-            resp.sendRedirect(req.getContextPath() + "/livestock");
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        } catch (Exception e) { throw new ServletException(e); }
     }
 
     private String extractFileName(Part part) {
@@ -168,7 +180,8 @@ public class LivestockServlet extends HttpServlet {
         for (String cd : contentDisposition.split(";")) {
             if (cd.trim().startsWith("filename")) {
                 String fileName = cd.substring(cd.indexOf("=") + 1).trim().replace("\"", "");
-                return fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+                if (fileName.isEmpty()) continue;
+                return fileName.substring(fileName.lastIndexOf(File.separatorChar) + 1);
             }
         }
         return null;
