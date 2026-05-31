@@ -9,15 +9,16 @@ public class Livestock {
     private String tag;
     private String species;
     private String breed;
+    private String category;
     private String gender;
     private Date dob;
     private BigDecimal currentValue;
     private String status;
+    private String imagePath;
     private Timestamp createdAt;
 
     public Livestock() {}
 
-    // ── Getters & Setters ──────────────────────────────────────
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -30,6 +31,9 @@ public class Livestock {
     public String getBreed() { return breed; }
     public void setBreed(String breed) { this.breed = breed; }
 
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
@@ -41,6 +45,9 @@ public class Livestock {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

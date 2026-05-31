@@ -7,10 +7,12 @@
     BigDecimal income    = (BigDecimal) request.getAttribute("totalIncome");
     BigDecimal expenses  = (BigDecimal) request.getAttribute("totalExpenses");
     BigDecimal net       = (BigDecimal) request.getAttribute("netPosition");
+    BigDecimal margin    = (BigDecimal) request.getAttribute("profitMargin");
     int active           = (Integer)    request.getAttribute("activeLivestock");
     List<Sale> sales     = (List<Sale>) request.getAttribute("recentSales");
     List<Expense> exps   = (List<Expense>) request.getAttribute("recentExpenses");
     List<Object[]> cats  = (List<Object[]>) request.getAttribute("expByCategory");
+    List<String[]> logs  = (List<String[]>) request.getAttribute("recentLogs");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,6 +58,13 @@
                 <div class="stat-value"><%= active %></div>
                 <div class="stat-sub">Animals on farm</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">Profit Margin</div>
+                <div class="stat-value" style="color:<%= margin != null && margin.compareTo(BigDecimal.ZERO) >= 0 ? "var(--leaf)" : "var(--danger)" %>">
+                    <%= margin != null ? String.format("%.1f", margin) : "0.0" %>%
+                </div>
+                <div class="stat-sub">Net / Income</div>
+            </div>
         </div>
 
         <div class="dash-grid">
@@ -64,25 +73,27 @@
                     <span class="card-title">Recent Sales</span>
                     <a href="<%= request.getContextPath() %>/sales" class="btn btn-sm btn-outline">View All</a>
                 </div>
-                <table>
-                    <thead><tr><th>Tag</th><th>Buyer</th><th>Amount</th><th>Status</th></tr></thead>
-                    <tbody>
-                    <% if (sales == null || sales.isEmpty()) { %>
-                        <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">No sales recorded yet</td></tr>
-                    <% } else { for (Sale s : sales) { %>
-                        <tr>
-                            <td><strong><%= s.getLivestockTag() %></strong></td>
-                            <td><%= s.getBuyer() %></td>
-                            <td>N$&nbsp;<%= String.format("%,.0f", s.getPrice()) %></td>
-                            <td>
-                                <span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>">
-                                    <%= s.getPaymentStatus() %>
-                                </span>
-                            </td>
-                        </tr>
-                    <% }} %>
-                    </tbody>
-                </table>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tag</th><th>Buyer</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody>
+                        <% if (sales == null || sales.isEmpty()) { %>
+                            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">No sales recorded yet</td></tr>
+                        <% } else { for (Sale s : sales) { %>
+                            <tr>
+                                <td><strong><%= s.getLivestockTag() %></strong></td>
+                                <td><%= s.getBuyer() %></td>
+                                <td>N$&nbsp;<%= String.format("%,.0f", s.getPrice()) %></td>
+                                <td>
+                                    <span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>">
+                                        <%= s.getPaymentStatus() %>
+                                    </span>
+                                </td>
+                            </tr>
+                        <% }} %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="card">
@@ -90,7 +101,11 @@
                     <span class="card-title">Expenses by Category</span>
                     <a href="<%= request.getContextPath() %>/expenses" class="btn btn-sm btn-outline">View All</a>
                 </div>
-                <canvas id="expenseChart" height="200" style="max-height:200px;"></canvas>
+                <% if (cats != null && !cats.isEmpty()) { %>
+                    <canvas id="expenseChart" height="200" style="max-height:200px;"></canvas>
+                <% } else { %>
+                    <p style="color:var(--muted);text-align:center;padding:24px">No expense data yet.</p>
+                <% } %>
             </div>
 
             <div class="card" style="grid-column: 1 / -1;">
@@ -98,24 +113,53 @@
                     <span class="card-title">Recent Expenses</span>
                     <a href="<%= request.getContextPath() %>/expenses" class="btn btn-sm btn-outline">View All</a>
                 </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Animal</th><th>Amount</th></tr></thead>
+                        <tbody>
+                        <% if (exps == null || exps.isEmpty()) { %>
+                            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No expenses recorded yet</td></tr>
+                        <% } else { for (Expense e : exps) { %>
+                            <tr>
+                                <td style="font-family:'DM Mono',monospace;font-size:12px"><%= e.getExpenseDate() %></td>
+                                <td><span class="badge badge-gray"><%= e.getCategory() %></span></td>
+                                <td><%= e.getDescription() != null ? e.getDescription() : "—" %></td>
+                                <td><%= e.getLivestockTag() != null ? e.getLivestockTag() : "—" %></td>
+                                <td><strong>N$&nbsp;<%= String.format("%,.0f", e.getAmount()) %></strong></td>
+                            </tr>
+                        <% }} %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <%-- Recent Activity (Audit Log) --%>
+        <div class="full-card" style="margin-top:28px;">
+            <div class="card-header">
+                <span class="card-title">Recent Activity</span>
+                <a href="<%= request.getContextPath() %>/admin/audit" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="table-wrap">
                 <table>
-                    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Animal</th><th>Amount</th></tr></thead>
+                    <thead><tr><th>User</th><th>Action</th><th>Entity</th><th>Details</th><th>Time</th></tr></thead>
                     <tbody>
-                    <% if (exps == null || exps.isEmpty()) { %>
-                        <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No expenses recorded yet</td></tr>
-                    <% } else { for (Expense e : exps) { %>
+                    <% if (logs == null || logs.isEmpty()) { %>
+                        <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No activity yet</td></tr>
+                    <% } else { for (String[] log : logs) { %>
                         <tr>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= e.getExpenseDate() %></td>
-                            <td><span class="badge badge-gray"><%= e.getCategory() %></span></td>
-                            <td><%= e.getDescription() != null ? e.getDescription() : "—" %></td>
-                            <td><%= e.getLivestockTag() != null ? e.getLivestockTag() : "—" %></td>
-                            <td><strong>N$&nbsp;<%= String.format("%,.0f", e.getAmount()) %></strong></td>
+                            <td><strong><%= log[0] %></strong></td>
+                            <td><span style="font-size:11px;text-transform:uppercase;font-weight:700;color:<%= "INSERT".equals(log[1]) ? "#2E7D32" : "UPDATE".equals(log[1]) ? "#E65100" : "#C62828" %>"><%= log[1] %></span></td>
+                            <td><%= log[2] %></td>
+                            <td><%= log[4] %></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:11px"><%= log[5] %></td>
                         </tr>
                     <% }} %>
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
 </div>
 <script>
@@ -135,6 +179,5 @@
     });
     <% } %>
 </script>
-<script src="<%= request.getContextPath() %>/js/tables.js"></script>
 </body>
 </html>

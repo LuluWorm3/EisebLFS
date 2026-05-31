@@ -62,7 +62,7 @@
         <input type="text" id="tableSearch" placeholder="Search..." style="margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px;">
 
         <div class="full-card">
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead><tr><th></th><th>Date</th><th>Tag</th><th>Species</th><th>Value (N$)</th><th>Method</th><th>Notes</th><th>Actions</th></tr></thead>
                     <tbody>
@@ -217,5 +217,11 @@ document.addEventListener("click", function(e) {
 
 <script src="<%= cp %>/js/tables.js"></script>
 <%@ include file="/WEB-INF/toast.jsp" %>
+<script>
+var cbs=document.querySelectorAll("[name=\"ids\"]");
+var btn=document.querySelector("#bulkDeleteForm button");
+if(btn) btn.style.display="none";
+cbs.forEach(function(cb){cb.addEventListener("change",function(){var any=Array.from(cbs).some(function(c){return c.checked});if(btn)btn.style.display=any?"":"none";});});
+</script>
 </body>
 </html>

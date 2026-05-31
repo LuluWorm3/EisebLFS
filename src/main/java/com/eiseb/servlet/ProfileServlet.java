@@ -31,6 +31,11 @@ public class ProfileServlet extends HttpServlet {
                 String fullName = req.getParameter("fullName");
                 String email = req.getParameter("email");
                 dao.updateUser(currentUser.getId(), fullName, email, currentUser.getRole());
+                // Refresh session user
+                User updated = dao.findByUsername(currentUser.getUsername());
+                if (updated != null) {
+                    req.getSession().setAttribute("currentUser", updated);
+                }
                 req.getSession().setAttribute("toastMsg", "Profile updated.");
                 req.getSession().setAttribute("toastType", "success");
             } else if ("changePassword".equals(action)) {

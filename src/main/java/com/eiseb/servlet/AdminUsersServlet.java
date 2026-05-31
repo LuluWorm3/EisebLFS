@@ -49,7 +49,11 @@ public class AdminUsersServlet extends HttpServlet {
                 String fullName = req.getParameter("fullName");
                 String email    = req.getParameter("email");
                 String role     = req.getParameter("role");
+                String password = req.getParameter("password");
                 dao.updateUser(id, fullName, email, role);
+                if (password != null && !password.isBlank()) {
+                    dao.updatePassword(id, password);
+                }
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 User currentUser = SecurityUtil.getLoggedUser(req);

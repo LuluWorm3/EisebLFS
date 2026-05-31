@@ -1,4 +1,3 @@
-<%@ include file="/WEB-INF/head_scripts.jsp" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="com.eiseb.model.User" %>
 <%
@@ -14,7 +13,7 @@
         <div class="sidebar-sub">Livestock Financial System</div>
     </div>
     <div class="sidebar-user">
-        <div class="user-avatar"><%= navUser != null ? navUser.getFullName().substring(0,1).toUpperCase() : "?" %></div>
+        <div class="user-avatar"><%= navUser != null ? (navUser.getFullName() != null && !navUser.getFullName().isEmpty() ? navUser.getFullName().substring(0,1) : "?").toUpperCase() : "?" %></div>
         <div>
             <div class="user-name"><%= navUser != null ? navUser.getFullName() : "Guest" %></div>
             <div class="user-role"><%= navUser != null ? navUser.getRole() : "" %></div>
@@ -43,6 +42,22 @@
         <a href="<%= navCp %>/admin/audit" class="nav-item <%= navUri.contains("/admin/audit") ? "active" : "" %>">Audit Log</a>
         <% } %>
     </nav>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var btn = document.getElementById("hamburgerBtn");
+    var sidebar = document.getElementById("sidebar");
+    if (btn && sidebar) {
+        btn.addEventListener("click", function() {
+            sidebar.classList.toggle("open");
+        });
+        sidebar.querySelectorAll("a").forEach(function(link) {
+            link.addEventListener("click", function() {
+                sidebar.classList.remove("open");
+            });
+        });
+    }
+});
+</script>
     <div class="sidebar-footer">
         <form action="<%= navCp %>/logout" method="post">
             <button class="btn-logout" type="submit">Sign Out</button>
@@ -51,19 +66,3 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-(function() {
-    var btn = document.getElementById('hamburgerBtn');
-    var sidebar = document.getElementById('sidebar');
-    if (btn && sidebar) {
-        btn.addEventListener('click', function() {
-            sidebar.classList.toggle('open');
-        });
-        sidebar.querySelectorAll('a').forEach(function(link) {
-            link.addEventListener('click', function() {
-                sidebar.classList.remove('open');
-            });
-        });
-    }
-})();
-</script>

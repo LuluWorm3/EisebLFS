@@ -55,7 +55,7 @@
             min-height: 100vh;
             background-image: linear-gradient(to bottom, rgba(15,7,2,0.75) 0%, rgba(30,15,5,0.6) 60%, rgba(253,250,244,1) 100%), url('https://images.unsplash.com/photo-1500595046743-cd94cb0be15b?w=1600&q=85');
             background-color: #3B2A1A;
-            background-size: cover; background-position: center 35%; background-attachment: fixed;
+            background-size: cover; background-position: center 35%; background-attachment: scroll;
             display: flex; align-items: center; justify-content: center;
             text-align: center; padding: 120px 24px 80px; position: relative;
         }
@@ -188,6 +188,7 @@
         .footer-staff a:hover { color:var(--gold); }
 
         @media (max-width: 900px) {
+    #mobile-staff-btn { display: inline-block !important; }
             .navbar { padding: 0 20px; }
             .nav-links { display: none; }
             .modules-grid { grid-template-columns: 1fr 1fr; }
@@ -196,6 +197,13 @@
             .enquiry-grid { grid-template-columns: 1fr; }
             .stats-inner { grid-template-columns: repeat(2,1fr); }
         }
+@media (max-width: 900px) { 
+    #mobile-staff-btn { display: inline-block !important; }
+  .nav-links { display: flex; flex-direction: column; gap: 6px; position: absolute; top: 68px; left: 0; right: 0; background: rgba(30,15,5,0.95); padding: 12px 20px; } 
+  .nav-links a { display: block; padding: 8px 0; } 
+  .footer-staff a { font-size: 13px; color: var(--gold); } 
+}
+    #mobile-staff-btn { display: inline-block !important; }
         @media (max-width: 600px) {
             .modules-grid { grid-template-columns: 1fr; }
             .finance-visual { grid-template-columns: 1fr 1fr; }
@@ -228,6 +236,8 @@
         <h1>Livestock<br><em>Financial</em><br>Management</h1>
         <p>A comprehensive ERP module for Eiseb Country Traders — digitising animal registration, valuations, sales tracking, expense management and financial reporting.</p>
         <div class="hero-btns">
+    <a href="<%= cp %>/login" class="btn-hero-secondary" id="mobile-staff-btn" style="display:none;">Staff Portal</a>
+    <a href="<%= cp %>/login" class="btn-hero-secondary" style="display:none;" id="mobile-staff-btn">Staff Portal</a>
             <a href="#enquiry" class="btn-hero-primary">Get in Touch</a>
         </div>
     </div>

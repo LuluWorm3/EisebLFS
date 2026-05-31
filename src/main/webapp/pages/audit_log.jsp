@@ -24,7 +24,7 @@
             max-width: 320px;
             border: 1px solid #D4A853;
             border-radius: 4px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
         }
         .log-detail {
             max-width: 200px;
@@ -63,7 +63,7 @@
         <input type="text" id="tableSearch" placeholder="Search by user, action, entity...">
 
         <div class="full-card">
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>

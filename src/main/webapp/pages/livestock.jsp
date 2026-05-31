@@ -36,6 +36,17 @@
         .modal-footer { padding:14px 28px; border-top:1px solid #E8D9BE; display:flex; gap:10px; justify-content:flex-end; }
 
         #tableSearch { margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px; }
+
+        /* Lightbox */
+        #lightbox {
+            display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.85); z-index:9999;
+            align-items:center; justify-content:center;
+        }
+        #lightbox.open { display:flex; }
+        #lightbox img { max-width:90vw; max-height:90vh; border-radius:4px; }
+        #lightbox .close-lightbox { position:absolute; top:20px; right:30px; font-size:30px; color:white; cursor:pointer; }
+        .photo-thumb { width:40px; height:40px; object-fit:cover; border-radius:3px; cursor:pointer; border:1px solid #ddd; }
+        .no-photo { font-size:11px; color:#ccc; }
     </style>
 </head>
 <body>
@@ -68,35 +79,44 @@
         <input type="text" id="tableSearch" placeholder="Search...">
 
         <div class="full-card">
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead>
-                        <tr><th></th><th>Tag</th><th>Species</th><th>Breed</th><th>Gender</th><th>DOB</th><th>Value (N$)</th><th>Status</th><th>Actions</th></tr>
+                        <tr><th></th><th>Tag</th><th>Species</th><th>Breed</th><th>Category</th><th>Gender</th><th>DOB</th><th>Value (N$)</th><th>Status</th><th>Photo</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
                     <% if (livestock == null || livestock.isEmpty()) { %>
-                        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:40px 0">No animals found. Add one above.</td></tr>
+                        <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px 0">No animals found. Add one above.</div></td></tr>
                     <% } else { for (Livestock l : livestock) { %>
                         <tr>
-                            <td><input type="checkbox" name="ids" value="<%= l.getId() %>" form="bulkDeleteForm"></td>
-                            <td><strong style="font-family:'DM Mono',monospace"><%= l.getTag() %></strong></td>
-                            <td><%= l.getSpecies() %></td>
-                            <td><%= l.getBreed() != null ? l.getBreed() : "—" %></td>
-                            <td><%= l.getGender() %></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= l.getDob() != null ? l.getDob() : "—" %></td>
-                            <td><%= String.format("%,.2f", l.getCurrentValue()) %></td>
+                            <td><input type="checkbox" name="ids" value="<%= l.getId() %>" form="bulkDeleteForm"></div></td>
+                            <td><strong style="font-family:'DM Mono',monospace"><%= l.getTag() %></strong></div></td>
+                            <td><%= l.getSpecies() %></div></td>
+                            <td><%= l.getBreed() != null ? l.getBreed() : "—" %></div></td>
+                            <td><%= l.getCategory() != null ? l.getCategory() : "—" %></div></td>
+                            <td><%= l.getGender() %></div></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= l.getDob() != null ? l.getDob() : "—" %></div></td>
+                            <td><%= String.format("%,.2f", l.getCurrentValue()) %></div></td>
                             <td>
                                 <span class="badge <%= "Active".equals(l.getStatus()) ? "badge-green" : "Sold".equals(l.getStatus()) ? "badge-blue" : "badge-red" %>">
                                     <%= l.getStatus() %>
                                 </span>
-                            </td>
-                            <td style="display:flex;gap:6px;flex-wrap:wrap">
+                            </div></td>
+                            <td>
+                                <% if (l.getImagePath() != null && !l.getImagePath().isEmpty()) { %>
+                                    <img src="<%= cp %>/image?file=livestock/<%= l.getImagePath() %>" class="photo-thumb" onclick="openLightbox('<%= cp %>/image?file=livestock/<%= l.getImagePath() %>')">
+                                <% } else { %>
+                                    <span class="no-photo">No photo</span>
+                                <% } %>
+                            </div></td>
+                            <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">
                                 <button class="btn btn-sm btn-outline"
                                     onclick="openEditModal(
                                         '<%= l.getId() %>',
                                         '<%= l.getTag() %>',
                                         '<%= l.getSpecies() %>',
                                         '<%= l.getBreed() != null ? l.getBreed() : "" %>',
+                                        '<%= l.getCategory() != null ? l.getCategory() : "" %>',
                                         '<%= l.getGender() %>',
                                         '<%= l.getDob() != null ? l.getDob().toLocalDate().toString() : "" %>',
                                         '<%= l.getCurrentValue().toPlainString() %>',
@@ -107,17 +127,17 @@
                                     <input type="hidden" name="action" value="status">
                                     <input type="hidden" name="id"     value="<%= l.getId() %>">
                                     <input type="hidden" name="status" value="Deceased">
-                                    <button class="btn btn-sm btn-outline" type="submit"
-                                            onclick="return confirm('Mark <%= l.getTag() %> as deceased?')">X Deceased</button>
+                                    <button class="btn btn-sm btn-outline" type="button"
+                                            onclick="event.preventDefault(); Swal.fire({title:'Mark <%= l.getTag() %> as deceased?', text:'This cannot be easily undone.', icon:'warning', showCancelButton:true, confirmButtonColor:'#D4A853', confirmButtonText:'Yes, mark deceased'}).then(function(result){ if(result.isConfirmed) this.form.submit(); })">X Deceased</button>
                                 </form>
                                 <% } %>
                                 <form method="post" action="<%= cp %>/livestock" style="display:inline"
                                       onsubmit="return confirm('Permanently delete <%= l.getTag() %>? This cannot be undone.')">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id"     value="<%= l.getId() %>">
-                                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                    <button class="btn btn-sm btn-danger" type="button">Delete</button>
                                 </form>
-                            </td>
+                            </div></td>
                         </tr>
                     <% }} %>
                     </tbody>
@@ -135,7 +155,7 @@
             <span class="modal-title" id="modalTitle">Add New Animal</span>
             <button class="modal-close" id="closeModalBtn" type="button">&times;</button>
         </div>
-        <form method="post" action="<%= cp %>/livestock">
+        <form method="post" action="<%= cp %>/livestock" enctype="multipart/form-data">
             <input type="hidden" name="action" id="formAction" value="add">
             <input type="hidden" name="id"     id="formId"     value="">
             <div class="modal-body">
@@ -192,6 +212,10 @@
                         <option value="Deceased">Deceased</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Photo (optional)</label>
+                    <input type="file" name="image" id="fImage" accept="image/*">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" id="cancelModalBtn">Cancel</button>
@@ -199,6 +223,12 @@
             </div>
         </form>
     </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+    <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
+    <img id="lightbox-img" src="">
 </div>
 
 <script>
@@ -213,29 +243,33 @@ document.getElementById('openAddBtn').addEventListener('click', function() {
     document.getElementById('fTag').value = '';
     document.getElementById('fSpecies').value = '';
     document.getElementById('fBreed').value = '';
+    document.getElementById('fCategory').value = '';
     document.getElementById('fGender').value = '';
     document.getElementById('fDob').value = '';
     document.getElementById('fValue').value = '';
     document.getElementById('fStatus').value = 'Active';
     document.getElementById('statusRow').style.display = 'none';
     document.getElementById('categoryGroup').style.display = 'none';
+    document.getElementById('fImage').value = '';
     document.getElementById('submitBtn').textContent = 'Add Animal';
     openModal();
 });
 
-function openEditModal(id, tag, species, breed, gender, dob, value, status) {
+function openEditModal(id, tag, species, breed, category, gender, dob, value, status) {
     document.getElementById('modalTitle').textContent = 'Edit Animal';
     document.getElementById('formAction').value = 'edit';
     document.getElementById('formId').value = id;
     document.getElementById('fTag').value = tag;
     document.getElementById('fSpecies').value = species;
     document.getElementById('fBreed').value = breed;
+    document.getElementById('fCategory').value = category;
     document.getElementById('fGender').value = gender;
     document.getElementById('fDob').value = dob;
     document.getElementById('fValue').value = value;
     document.getElementById('fStatus').value = status;
     document.getElementById('statusRow').style.display = 'block';
     document.getElementById('categoryGroup').style.display = 'none';
+    document.getElementById('fImage').value = '';
     document.getElementById('submitBtn').textContent = 'Update Animal';
     openModal();
 }
@@ -251,12 +285,25 @@ openEditModal(
     '<%= editLivestock.getTag() %>',
     '<%= editLivestock.getSpecies() %>',
     '<%= editLivestock.getBreed() != null ? editLivestock.getBreed() : "" %>',
+    '<%= editLivestock.getCategory() != null ? editLivestock.getCategory() : "" %>',
     '<%= editLivestock.getGender() %>',
     '<%= editLivestock.getDob() != null ? editLivestock.getDob().toLocalDate().toString() : "" %>',
     '<%= editLivestock.getCurrentValue().toPlainString() %>',
     '<%= editLivestock.getStatus() %>'
 );
 <% } %>
+
+// Lightbox
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+}
+document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+});
 </script>
 
 <script src="<%= cp %>/js/tables.js"></script>
@@ -264,31 +311,13 @@ openEditModal(
 <%@ include file="/WEB-INF/toast.jsp" %>
 <script>
 var categoriesBySpecies = {
-    "Goat": [
-        "Kid (young)",
-        "Meat Goat (Boer, Kiko)",
-        "Dairy Goat (Nubian, Alpine)",
-        "Registered Breeding Stock"
-    ],
-    "Cattle": [
-        "Calf (weaner)",
-        "Yearling / Grower",
-        "Mature Cow (breeding)",
-        "Ox / Steer (draught)",
-        "Registered Bull"
-    ],
-    "Sheep": [
-        "Lamb (young)",
-        "Meat Sheep (Dorper)",
-        "Wool Sheep (Merino)",
-        "Registered Ram / Ewe"
-    ]
+    "Goat": ["Kid (young)", "Meat Goat (Boer, Kiko)", "Dairy Goat (Nubian, Alpine)", "Registered Breeding Stock"],
+    "Cattle": ["Calf (weaner)", "Yearling / Grower", "Mature Cow (breeding)", "Ox / Steer (draught)", "Registered Bull"],
+    "Sheep": ["Lamb (young)", "Meat Sheep (Dorper)", "Wool Sheep (Merino)", "Registered Ram / Ewe"]
 };
-
 var speciesSelect = document.getElementById("fSpecies");
 var categoryGroup = document.getElementById("categoryGroup");
 var categorySelect = document.getElementById("fCategory");
-
 speciesSelect.addEventListener("change", function() {
     var species = this.value;
     if (categoriesBySpecies[species]) {
@@ -304,11 +333,16 @@ speciesSelect.addEventListener("change", function() {
         categoryGroup.style.display = "none";
     }
 });
-
 if (speciesSelect.value) {
     var event = new Event("change");
     speciesSelect.dispatchEvent(event);
 }
+</script>
+<script>
+var cbs=document.querySelectorAll("[name=\"ids\"]");
+var btn=document.querySelector("#bulkDeleteForm button");
+if(btn) btn.style.display="none";
+cbs.forEach(function(cb){cb.addEventListener("change",function(){var any=Array.from(cbs).some(function(c){return c.checked});if(btn)btn.style.display=any?"":"none";});});
 </script>
 </body>
 </html>

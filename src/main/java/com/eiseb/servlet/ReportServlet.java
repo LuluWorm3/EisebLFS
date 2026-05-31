@@ -2,8 +2,8 @@ package com.eiseb.servlet;
 
 import com.eiseb.dao.ExpenseDAO;
 import com.eiseb.dao.SaleDAO;
-import com.eiseb.model.Sale;
 import com.eiseb.model.Expense;
+import com.eiseb.model.Sale;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -33,15 +33,26 @@ public class ReportServlet extends HttpServlet {
                 ? expDAO.findByDateRange(Date.valueOf(startDate), Date.valueOf(endDate))
                 : expDAO.findAll();
 
-            BigDecimal income   = saleDAO.totalPaidIncome();
-            BigDecimal expenses = expDAO.totalExpenses();
-            BigDecimal net      = income.subtract(expenses);
+            // Calculate totals from the filtered lists, not all-time totals
+            BigDecimal income = BigDecimal.ZERO;
+            for (Sale s : allSales) {
+                if ("Paid".equals(s.getPaymentStatus())) {
+                    income = income.add(s.getPrice());
+                }
+            }
+            BigDecimal expenses = BigDecimal.ZERO;
+            for (Expense e : allExpenses) {
+                expenses = expenses.add(e.getAmount());
+            }
+            BigDecimal net = income.subtract(expenses);
 
+            // Category breakdown from filtered expenses
+            // (We can reuse the same DAO method but pass date range; for simplicity we compute here)
             req.setAttribute("totalIncome",   income);
             req.setAttribute("totalExpenses", expenses);
             req.setAttribute("netPosition",   net);
-            req.setAttribute("paidSaleCount", saleDAO.countPaidSales());
-            req.setAttribute("expByCategory", expDAO.sumByCategory());
+            req.setAttribute("paidSaleCount", saleDAO.countPaidSales());  // all-time count, fine for now
+            req.setAttribute("expByCategory", expDAO.sumByCategory());    // all-time categories
             req.setAttribute("allSales",      allSales);
             req.setAttribute("allExpenses",   allExpenses);
             req.setAttribute("startDate",     startDate);

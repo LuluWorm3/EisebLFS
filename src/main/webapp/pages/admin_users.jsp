@@ -95,7 +95,7 @@
         <input type="text" id="tableSearch" placeholder="Search...">
 
         <div class="full-card">
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead><tr><th>ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
                     <tbody>

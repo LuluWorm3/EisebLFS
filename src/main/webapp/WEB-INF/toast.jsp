@@ -6,10 +6,10 @@
         session.removeAttribute("toastMsg");
         session.removeAttribute("toastType");
 %>
-<div id="toast" class="toast toast-<%= toastType %>" style="
+<div id="toast" role="alert" role="alert" class="toast toast-<%= toastType %>" style="
     position:fixed; top:20px; right:20px; z-index:9999;
     background:<%= "success".equals(toastType) ? "#2E7D32" : "#C62828" %>; color:white;
-    padding:16px 24px; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px;
+    padding:16px 24px; border-radius:4px; font-family:'DM Sans',sans-serif; font-size:14px;
     box-shadow:0 8px 24px rgba(0,0,0,0.25); display:flex; align-items:center; gap:12px;
     transition:opacity 0.3s ease;
 ">

@@ -55,20 +55,20 @@
         <input type="text" id="tableSearch" placeholder="Search..." style="margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px;">
 
         <div class="full-card">
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead><tr><th></th><th>Date</th><th>Category</th><th>Description</th><th>Animal</th><th>Amount (N$)</th><th>Actions</th></tr></thead>
                     <tbody>
                     <% if (expenses == null || expenses.isEmpty()) { %>
-                        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px 0">No expenses recorded yet.</td></tr>
+                        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px 0">No expenses recorded yet.</div></td></tr>
                     <% } else { for (Expense e : expenses) { %>
                         <tr>
-                            <td><input type="checkbox" name="ids" value="<%= e.getId() %>" form="bulkDeleteForm"></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= e.getExpenseDate() %></td>
-                            <td><span class="badge badge-gray"><%= e.getCategory() %></span></td>
-                            <td><%= e.getDescription() != null ? e.getDescription() : "—" %></td>
-                            <td><%= e.getLivestockTag() != null ? e.getLivestockTag() : "—" %></td>
-                            <td><strong>N$&nbsp;<%= String.format("%,.2f", e.getAmount()) %></strong></td>
+                            <td><input type="checkbox" name="ids" value="<%= e.getId() %>" form="bulkDeleteForm"></div></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= e.getExpenseDate() %></div></td>
+                            <td><span class="badge badge-gray"><%= e.getCategory() %></span></div></td>
+                            <td><%= e.getDescription() != null ? e.getDescription() : "—" %></div></td>
+                            <td><%= e.getLivestockTag() != null ? e.getLivestockTag() : "—" %></div></td>
+                            <td><strong>N$&nbsp;<%= String.format("%,.2f", e.getAmount()) %></strong></div></td>
                             <td style="display:flex;gap:6px">
                                 <button class="btn btn-sm btn-outline"
                                     onclick="openEditModal('<%= e.getId() %>','<%= e.getCategory() %>','<%= e.getAmount().toPlainString() %>','<%= e.getExpenseDate().toLocalDate().toString() %>','<%= e.getDescription() != null ? e.getDescription().replace("'","\\'") : "" %>','<%= e.getLivestockId() != null ? e.getLivestockId() : "" %>')">Edit</button>
@@ -78,7 +78,7 @@
                                     <input type="hidden" name="id"     value="<%= e.getId() %>">
                                     <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                                 </form>
-                            </td>
+                            </div></td>
                         </tr>
                     <% }} %>
                     </tbody>
@@ -175,5 +175,11 @@ openEditModal('<%= editExpense.getId() %>','<%= editExpense.getCategory() %>','<
 
 <script src="<%= cp %>/js/tables.js"></script>
 <%@ include file="/WEB-INF/toast.jsp" %>
+<script>
+var cbs=document.querySelectorAll("[name=\"ids\"]");
+var btn=document.querySelector("#bulkDeleteForm button");
+if(btn) btn.style.display="none";
+cbs.forEach(function(cb){cb.addEventListener("change",function(){var any=Array.from(cbs).some(function(c){return c.checked});if(btn)btn.style.display=any?"":"none";});});
+</script>
 </body>
 </html>

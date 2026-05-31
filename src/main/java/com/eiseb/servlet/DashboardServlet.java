@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 public class DashboardServlet extends HttpServlet {
 
@@ -20,6 +21,7 @@ public class DashboardServlet extends HttpServlet {
             SaleDAO    saleDAO    = new SaleDAO(getServletContext());
             ExpenseDAO expDAO     = new ExpenseDAO(getServletContext());
             LivestockDAO lsDAO   = new LivestockDAO(getServletContext());
+            AuditDAO   auditDAO  = new AuditDAO(getServletContext());   // NEW
 
             BigDecimal income    = saleDAO.totalPaidIncome();
             BigDecimal expenses  = expDAO.totalExpenses();
@@ -34,6 +36,9 @@ public class DashboardServlet extends HttpServlet {
                     .divide(income, 1, RoundingMode.HALF_UP);
             }
 
+            // Recent audit entries
+            List<String[]> recentLogs = auditDAO.getRecentLogs(5);   // NEW
+
             req.setAttribute("totalIncome",    income);
             req.setAttribute("totalExpenses",  expenses);
             req.setAttribute("netPosition",    net);
@@ -42,6 +47,7 @@ public class DashboardServlet extends HttpServlet {
             req.setAttribute("recentSales",    saleDAO.findAll().stream().limit(5).toList());
             req.setAttribute("recentExpenses", expDAO.findAll().stream().limit(5).toList());
             req.setAttribute("expByCategory",  expDAO.sumByCategory());
+            req.setAttribute("recentLogs",     recentLogs);            // NEW
 
             req.getRequestDispatcher("/pages/dashboard.jsp").forward(req, resp);
         } catch (Exception e) {

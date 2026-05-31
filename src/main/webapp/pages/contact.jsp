@@ -54,7 +54,7 @@
         <% if (canSeeMessages && enquiries != null && !enquiries.isEmpty()) { %>
         <div class="full-card">
             <div class="card-header"><span class="card-title">Received Messages</span></div>
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead>
                         <tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr>

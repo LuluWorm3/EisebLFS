@@ -38,12 +38,17 @@
             <div>
                 <div class="section-title">Financial Summary</div>
                 <div class="section-sub">All-time overview</div>
+<div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap"> 
+  <a href="<%= cp %>/export?type=sales" class="btn btn-sm btn-outline">Export Sales CSV</a> 
+  <a href="<%= cp %>/export?type=expenses" class="btn btn-sm btn-outline">Export Expenses CSV</a> 
+  <a href="<%= cp %>/export?type=livestock" class="btn btn-sm btn-outline">Export Livestock CSV</a> 
+</div>
             </div>
         </div>
 
         <%-- Date filter form --%>
         <form method="get" action="<%= cp %>/reports" style="margin-bottom:20px; display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
-            <div class="form-group" style="margin-bottom:0">
+            <div class="form-group" style="margin-bottom:6px">
                 <label>Start Date</label>
                 <input type="date" name="startDate" value="<%= request.getAttribute("startDate") != null ? request.getAttribute("startDate") : "" %>">
             </div>
@@ -131,7 +136,7 @@
         <%-- Full transaction log --%>
         <div class="full-card">
             <div class="card-header"><span class="card-title">All Sales</span></div>
-            <div class="table-responsive">
+            <div class="table-wrap">
                 <table>
                     <thead><tr><th>Date</th><th>Tag</th><th>Buyer</th><th>Type</th><th>Price</th><th>Status</th></tr></thead>
                     <tbody>

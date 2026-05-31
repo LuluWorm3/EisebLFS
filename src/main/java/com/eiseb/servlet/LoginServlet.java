@@ -55,7 +55,7 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("lockoutEnd", System.currentTimeMillis() + 10 * 60 * 1000);
                     req.setAttribute("loginError", "Too many failed attempts. Account locked for 10 minutes.");
                 } else {
-                    req.setAttribute("loginError", "Invalid username or password. Attempts: " + attempts);
+                    req.setAttribute("loginError", "Invalid username or password.");
                 }
                 req.getRequestDispatcher("/index.jsp").forward(req, resp);
             }

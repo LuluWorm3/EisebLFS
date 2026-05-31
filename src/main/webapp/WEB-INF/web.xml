@@ -183,12 +183,38 @@
     <servlet-name>HelpServlet</servlet-name>
     <url-pattern>/help</url-pattern>
   </servlet-mapping>
+  <!-- Invoice -->
+  <servlet>
+    <servlet-name>InvoiceServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.InvoiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>InvoiceServlet</servlet-name>
+    <url-pattern>/invoice</url-pattern>
+  </servlet-mapping>
+  <!-- Image Serving -->
+  <servlet>
+    <servlet-name>ImageServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.ImageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ImageServlet</servlet-name>
+    <url-pattern>/image</url-pattern>
+  </servlet-mapping>
   <!-- Welcome -->
   <welcome-file-list>
     <welcome-file>landing.jsp</welcome-file>
   </welcome-file-list>
 
   <!-- Error pages -->
+  <error-page>
+    <error-code>403</error-code>
+    <location>/pages/error500.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>403</error-code>
+    <location>/pages/error500.jsp</location>
+  </error-page>
   <error-page>
     <error-code>404</error-code>
     <location>/pages/error404.jsp</location>

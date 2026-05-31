@@ -66,7 +66,6 @@
                         <select name="role">
                             <option value="staff">Staff</option>
                             <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
                         </select>
                     </div>
                 </div>
