@@ -126,6 +126,15 @@
     <url-pattern>/dashboard</url-pattern>
   </servlet-mapping>
 
+  <!-- Admin Enquiries -->
+  <servlet>
+    <servlet-name>AdminEnquiriesServlet</servlet-name>
+    <servlet-class>com.eiseb.servlet.AdminEnquiriesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminEnquiriesServlet</servlet-name>
+    <url-pattern>/admin/enquiries</url-pattern>
+  </servlet-mapping>
   <!-- Admin User Management -->
   <servlet>
     <servlet-name>AdminUsersServlet</servlet-name>
@@ -176,7 +185,7 @@
   </servlet-mapping>
   <!-- Welcome -->
   <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>landing.jsp</welcome-file>
   </welcome-file-list>
 
   <!-- Error pages -->

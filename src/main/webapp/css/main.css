@@ -288,24 +288,9 @@ tbody tr:hover { background: var(--surface); }
         align-items: flex-start;
     }
 }
-/* ── Mobile table horizontal scroll ── */
-@media (max-width: 768px) {
-  .full-card,
-  .card {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   table {
     min-width: 600px;   /* ensures table doesn't squeeze into nothing */
   }
-}
-
-/* ── Mobile table horizontal scroll ── */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 768px) {

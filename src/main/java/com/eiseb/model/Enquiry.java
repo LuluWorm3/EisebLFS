@@ -8,7 +8,6 @@ public class Enquiry {
     private String email;
     private String subject;
     private String message;
-    private String reply;
     private Timestamp submittedAt;
 
     public int getId() { return id; }
@@ -25,9 +24,6 @@ public class Enquiry {
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
-
-    public String getReply() { return reply; }
-    public void setReply(String reply) { this.reply = reply; }
 
     public Timestamp getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(Timestamp submittedAt) { this.submittedAt = submittedAt; }

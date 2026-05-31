@@ -15,7 +15,6 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Valuations — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body  { display: flex; margin: 0; }
         .main { flex: 1; min-width: 0; }
@@ -33,40 +32,13 @@
         .modal-close  { background:none; border:none; font-size:24px; cursor:pointer; color:#8A7560; line-height:1; padding:0 4px; }
         .modal-body   { padding:22px 28px; }
         .modal-footer { padding:14px 28px; border-top:1px solid #E8D9BE; display:flex; gap:10px; justify-content:flex-end; }
-.searchable-select {
-    position: relative;
-}
-.searchable-select input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #D4A853;
-    border-radius: 4px;
-}
-.dropdown-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    max-height: 200px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid #D4A853;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    z-index: 1000;
-    display: none;
-}
-.dropdown-list.open {
-    display: block;
-}
-.dropdown-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
-.dropdown-item:hover {
-    background: #F5E6CC;
-}
+
+        .searchable-select { position: relative; }
+        .searchable-select input { width: 100%; padding: 8px; border: 1px solid #D4A853; border-radius: 4px; }
+        .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: #fff; border: 1px solid #D4A853; border-top: none; border-radius: 0 0 4px 4px; z-index: 1000; display: none; }
+        .dropdown-list.open { display: block; }
+        .dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+        .dropdown-item:hover { background: #F5E6CC; }
     </style>
 </head>
 <body>
@@ -84,44 +56,42 @@
 
         <form method="post" action="<%= cp %>/valuations" id="bulkDeleteForm">
             <input type="hidden" name="action" value="bulkDelete">
-            <button type="button" class="btn btn-danger" onclick="if(confirm('Delete selected valuations?')) document.getElementById('bulkDeleteForm').submit();" style="margin-bottom:10px;">🗑 Delete Selected</button>
+            <button type="button" class="btn btn-danger" onclick="if(confirm('Delete selected valuations?')) document.getElementById('bulkDeleteForm').submit();" style="margin-bottom:10px;">Delete Selected</button>
         </form>
 
         <input type="text" id="tableSearch" placeholder="Search..." style="margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px;">
 
         <div class="full-card">
             <div class="table-responsive">
-<div class="table-responsive">
-<table>
-                <thead><tr><th></th><th>Date</th><th>Tag</th><th>Species</th><th>Value (N$)</th><th>Method</th><th>Notes</th><th>Actions</th></tr></thead>
-                <tbody>
-                <% if (valuations == null || valuations.isEmpty()) { %>
-                    <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px 0">No valuations recorded yet.</td></tr>
-                <% } else { for (Valuation v : valuations) { %>
-                    <tr>
-                        <td><input type="checkbox" name="ids" value="<%= v.getId() %>" form="bulkDeleteForm"></td>
-                        <td style="font-family:'DM Mono',monospace;font-size:12px"><%= v.getValDate() %></td>
-                        <td><strong style="font-family:'DM Mono',monospace"><%= v.getLivestockTag() %></strong></td>
-                        <td><%= v.getLivestockSpecies() %></td>
-                        <td><strong>N$&nbsp;<%= String.format("%,.2f", v.getValue()) %></strong></td>
-                        <td><%= v.getMethod() != null ? v.getMethod() : "—" %></td>
-                        <td><%= v.getNotes()  != null ? v.getNotes()  : "—" %></td>
-                        <td style="display:flex;gap:6px">
-                            <button class="btn btn-sm btn-outline"
-                                onclick="openEditModal('<%= v.getId() %>','<%= v.getLivestockId() %>','<%= v.getValDate().toLocalDate().toString() %>','<%= v.getValue().toPlainString() %>','<%= v.getMethod() != null ? v.getMethod().replace("'","\\'") : "" %>','<%= v.getNotes()  != null ? v.getNotes().replace("'","\\'")  : "" %>')">Edit</button>
-                            <form method="post" action="<%= cp %>/valuations" style="display:inline"
-                                  onsubmit="return confirm('Delete this valuation?')">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id"     value="<%= v.getId() %>">
-                                <button class="btn btn-sm btn-danger" type="submit">🗑</button>
-                            </form>
-                        </td>
-                    </tr>
-                <% }} %>
-                </tbody>
-            </table>
-</div>
-</div>
+                <table>
+                    <thead><tr><th></th><th>Date</th><th>Tag</th><th>Species</th><th>Value (N$)</th><th>Method</th><th>Notes</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <% if (valuations == null || valuations.isEmpty()) { %>
+                        <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px 0">No valuations recorded yet.</td></tr>
+                    <% } else { for (Valuation v : valuations) { %>
+                        <tr>
+                            <td><input type="checkbox" name="ids" value="<%= v.getId() %>" form="bulkDeleteForm"></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= v.getValDate() %></td>
+                            <td><strong style="font-family:'DM Mono',monospace"><%= v.getLivestockTag() %></strong></td>
+                            <td><%= v.getLivestockSpecies() %></td>
+                            <td><strong>N$&nbsp;<%= String.format("%,.2f", v.getValue()) %></strong></td>
+                            <td><%= v.getMethod() != null ? v.getMethod() : "—" %></td>
+                            <td><%= v.getNotes()  != null ? v.getNotes()  : "—" %></td>
+                            <td style="display:flex;gap:6px">
+                                <button class="btn btn-sm btn-outline"
+                                    onclick="openEditModal('<%= v.getId() %>','<%= v.getLivestockId() %>','<%= v.getValDate().toLocalDate().toString() %>','<%= v.getValue().toPlainString() %>','<%= v.getMethod() != null ? v.getMethod().replace("'","\\'") : "" %>','<%= v.getNotes()  != null ? v.getNotes().replace("'","\\'")  : "" %>')">Edit</button>
+                                <form method="post" action="<%= cp %>/valuations" style="display:inline"
+                                      onsubmit="return confirm('Delete this valuation?')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id"     value="<%= v.getId() %>">
+                                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }} %>
+                    </tbody>
+                </table>
+            </div>
             <div class="pagination"><%= valuations != null ? valuations.size() : 0 %> record(s)</div>
         </div>
     </div>
@@ -139,12 +109,12 @@
             <input type="hidden" name="id"     id="formId"     value="">
             <div class="modal-body">
                 <div class="form-group"><label>Animal *</label>
-                    <select name="livestockId" id="fLivestock" required>
-                        <option value="">Select animal...</option>
-                        <% if (active != null) { for (Livestock l : active) { %>
-                        <option value="<%= l.getId() %>"><%= l.getTag() %> — <%= l.getSpecies() %> (<%= l.getBreed() != null ? l.getBreed() : "Unknown breed" %>)</option>
-                        <% }} %>
-                    </select>
+                    <div class="searchable-select" id="animalSearch">
+                        <input type="text" id="animalSearchInput" placeholder="Type to search animal..." autocomplete="off"
+                               style="width:100%; padding:8px; border:1px solid #D4A853; border-radius:4px;">
+                        <input type="hidden" name="livestockId" id="fLivestock">
+                        <div class="dropdown-list" id="animalDropdown"></div>
+                    </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Valuation Date *</label><input type="date" name="valDate" id="fDate" required></div>
@@ -171,6 +141,7 @@ document.getElementById('openAddBtn').addEventListener('click', function() {
     document.getElementById('formAction').value = 'add';
     document.getElementById('formId').value = '';
     document.getElementById('fLivestock').value = '';
+    document.getElementById('animalSearchInput').value = '';
     document.getElementById('fDate').value = '';
     document.getElementById('fValue').value = '';
     document.getElementById('fMethod').value = '';
@@ -189,6 +160,8 @@ function openEditModal(id, livestockId, date, value, method, notes) {
     document.getElementById('fMethod').value = method;
     document.getElementById('fNotes').value = notes;
     document.getElementById('submitBtn').textContent = 'Update Valuation';
+    var found = activeLivestock.find(function(item) { return item.id == livestockId; });
+    document.getElementById('animalSearchInput').value = found ? found.text : '';
     openModal();
 }
 
@@ -203,35 +176,6 @@ openEditModal('<%= editValuation.getId() %>','<%= editValuation.getLivestockId()
 </script>
 
 <script>
-document.getElementById('tableSearch').addEventListener('keyup', function() {
-    var filter = this.value.toUpperCase();
-    document.querySelectorAll('table tbody tr').forEach(function(row) {
-        row.style.display = row.textContent.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
-    });
-});
-document.querySelectorAll('table thead th').forEach(function(th, colIndex) {
-    th.style.cursor = 'pointer';
-    th.addEventListener('click', function() {
-        var table = th.closest('table');
-        var tbody = table.querySelector('tbody');
-        var rows = Array.from(tbody.querySelectorAll('tr'));
-        var ascending = th.classList.contains('sorted-asc');
-        table.querySelectorAll('th').forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
-        th.classList.add(ascending ? 'sorted-desc' : 'sorted-asc');
-        rows.sort(function(a, b) {
-            var aVal = a.cells[colIndex].textContent.trim().toLowerCase();
-            var bVal = b.cells[colIndex].textContent.trim().toLowerCase();
-            var aNum = parseFloat(aVal.replace(/[^0-9.-]/g, ''));
-            var bNum = parseFloat(bVal.replace(/[^0-9.-]/g, ''));
-            if (!isNaN(aNum) && !isNaN(bNum)) return ascending ? (bNum - aNum) : (aNum - bNum);
-            return ascending ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-        });
-        rows.forEach(function(row) { tbody.appendChild(row); });
-    });
-});
-</script>
-<%@ include file="/WEB-INF/toast.jsp" %>
-<script>
 var activeLivestock = [
     <% if (active != null) { 
         for (Livestock l : active) { %>
@@ -245,10 +189,7 @@ var hiddenInput = document.getElementById("fLivestock");
 
 function showDropdown(items) {
     dropdown.innerHTML = "";
-    if (items.length === 0) {
-        dropdown.classList.remove("open");
-        return;
-    }
+    if (items.length === 0) { dropdown.classList.remove("open"); return; }
     items.forEach(function(item) {
         var div = document.createElement("div");
         div.className = "dropdown-item";
@@ -263,23 +204,18 @@ function showDropdown(items) {
     dropdown.classList.add("open");
 }
 
-searchInput.addEventListener("focus", function() {
-    showDropdown(activeLivestock);
-});
-
+searchInput.addEventListener("focus", function() { showDropdown(activeLivestock); });
 searchInput.addEventListener("input", function() {
     var filter = this.value.toLowerCase();
-    var filtered = activeLivestock.filter(function(item) {
-        return item.text.toLowerCase().indexOf(filter) !== -1;
-    });
+    var filtered = activeLivestock.filter(function(item) { return item.text.toLowerCase().indexOf(filter) !== -1; });
     showDropdown(filtered);
 });
-
 document.addEventListener("click", function(e) {
-    if (!document.getElementById("animalSearch").contains(e.target)) {
-        dropdown.classList.remove("open");
-    }
+    if (!document.getElementById("animalSearch").contains(e.target)) dropdown.classList.remove("open");
 });
 </script>
+
+<script src="<%= cp %>/js/tables.js"></script>
+<%@ include file="/WEB-INF/toast.jsp" %>
 </body>
 </html>

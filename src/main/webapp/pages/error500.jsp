@@ -7,7 +7,7 @@
 </head>
 <body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--surface)">
     <div style="text-align:center;padding:48px">
-        <div style="font-size:64px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:64px;margin-bottom:16px"></div>
         <h1 style="font-family:'Playfair Display',serif;font-size:48px;color:var(--danger);margin-bottom:8px">500</h1>
         <p style="color:var(--muted);font-size:16px;margin-bottom:8px">Something went wrong on the server.</p>
         <% if (exception != null) { %>

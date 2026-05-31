@@ -11,7 +11,6 @@
     <meta charset="UTF-8">
     <title>Help — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>body{display:flex;}.main{flex:1;}</style>
 </head>
 <body>

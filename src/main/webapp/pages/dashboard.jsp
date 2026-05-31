@@ -35,27 +35,23 @@
     <div class="content">
         <div class="stat-grid">
             <div class="stat-card green">
-                <div class="stat-icon">💰</div>
                 <div class="stat-label">Total Income</div>
                 <div class="stat-value">N$&nbsp;<%= String.format("%,.0f", income) %></div>
                 <div class="stat-sub">Paid sales</div>
             </div>
             <div class="stat-card red">
-                <div class="stat-icon">🧾</div>
                 <div class="stat-label">Total Expenses</div>
                 <div class="stat-value">N$&nbsp;<%= String.format("%,.0f", expenses) %></div>
                 <div class="stat-sub">All categories</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📊</div>
                 <div class="stat-label">Net Position</div>
                 <div class="stat-value" style="color:<%= net.compareTo(BigDecimal.ZERO) >= 0 ? "var(--leaf)" : "var(--danger)" %>">
                     N$&nbsp;<%= String.format("%,.0f", net) %>
                 </div>
-                <div class="stat-sub">Income − Expenses</div>
+                <div class="stat-sub">Income - Expenses</div>
             </div>
             <div class="stat-card blue">
-                <div class="stat-icon">🐄</div>
                 <div class="stat-label">Active Livestock</div>
                 <div class="stat-value"><%= active %></div>
                 <div class="stat-sub">Animals on farm</div>
@@ -139,5 +135,6 @@
     });
     <% } %>
 </script>
+<script src="<%= request.getContextPath() %>/js/tables.js"></script>
 </body>
 </html>

@@ -14,7 +14,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit Log — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body  { display: flex; }
         .main { flex: 1; }
@@ -58,80 +57,46 @@
                 <div class="section-title">Recent Activity</div>
                 <div class="section-sub"><%= logs != null ? logs.size() : 0 %> entries</div>
             </div>
-            <button class="btn btn-sm btn-outline" onclick="window.location.reload()">🔄 Refresh</button>
+            <button class="btn btn-sm btn-outline" onclick="window.location.reload()">Refresh</button>
         </div>
 
         <input type="text" id="tableSearch" placeholder="Search by user, action, entity...">
 
         <div class="full-card">
             <div class="table-responsive">
-<div class="table-responsive">
-<table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Entity</th>
-                        <th>Entity ID</th>
-                        <th>Details</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <% if (logs == null || logs.isEmpty()) { %>
-                    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px 0">No activity recorded yet.</td></tr>
-                <% } else {
-                    for (String[] log : logs) { %>
+                <table>
+                    <thead>
                         <tr>
-                            <td><strong><%= log[0] %></strong></td>
-                            <td><span class="badge-action action-<%= log[1] %>"><%= log[1] %></span></td>
-                            <td><%= log[2] %></td>
-                            <td><%= log[3] %></td>
-                            <td class="log-detail" title="<%= log[4] %>"><%= log[4] %></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= log[5] %></td>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Entity ID</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
                         </tr>
-                    <% }
-                } %>
-                </tbody>
-            </table>
-</div>
-</div>
+                    </thead>
+                    <tbody>
+                    <% if (logs == null || logs.isEmpty()) { %>
+                        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px 0">No activity recorded yet.</td></tr>
+                    <% } else {
+                        for (String[] log : logs) { %>
+                            <tr>
+                                <td><strong><%= log[0] %></strong></td>
+                                <td><span class="badge-action action-<%= log[1] %>"><%= log[1] %></span></td>
+                                <td><%= log[2] %></td>
+                                <td><%= log[3] %></td>
+                                <td class="log-detail" title="<%= log[4] %>"><%= log[4] %></td>
+                                <td style="font-family:'DM Mono',monospace;font-size:12px"><%= log[5] %></td>
+                            </tr>
+                        <% }
+                    } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<script>
-// Search filter
-document.getElementById('tableSearch').addEventListener('keyup', function() {
-    var filter = this.value.toUpperCase();
-    var rows = document.querySelectorAll('table tbody tr');
-    rows.forEach(function(row) {
-        var text = row.textContent.toUpperCase();
-        row.style.display = text.indexOf(filter) > -1 ? '' : 'none';
-    });
-});
-
-// Sortable headers
-document.querySelectorAll('table thead th').forEach(function(th, colIndex) {
-    th.style.cursor = 'pointer';
-    th.addEventListener('click', function() {
-        var table = th.closest('table');
-        var tbody = table.querySelector('tbody');
-        var rows = Array.from(tbody.querySelectorAll('tr'));
-        var ascending = th.classList.contains('sorted-asc');
-        table.querySelectorAll('th').forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
-        th.classList.add(ascending ? 'sorted-desc' : 'sorted-asc');
-        rows.sort(function(a, b) {
-            var aVal = a.cells[colIndex].textContent.trim().toLowerCase();
-            var bVal = b.cells[colIndex].textContent.trim().toLowerCase();
-            var aNum = parseFloat(aVal.replace(/[^0-9.-]/g, ''));
-            var bNum = parseFloat(bVal.replace(/[^0-9.-]/g, ''));
-            if (!isNaN(aNum) && !isNaN(bNum)) return ascending ? (bNum - aNum) : (aNum - bNum);
-            return ascending ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-        });
-        rows.forEach(function(row) { tbody.appendChild(row); });
-    });
-});
-</script>
+<script src="<%= cp %>/js/tables.js"></script>
 </body>
 </html>

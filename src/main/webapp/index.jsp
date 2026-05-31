@@ -11,7 +11,7 @@
 <div class="auth-wrap">
     <div class="auth-card">
         <div class="auth-logo">
-            <span class="cattle-icon">🐄</span>
+            <span class="cattle-icon"> </span>
             <div class="brand">Eiseb Country Traders</div>
             <div class="sub">Livestock Financial System</div>
         </div>
@@ -44,7 +44,7 @@
                     <label>Password</label>
                     <input type="password" name="password" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-primary-wide">Sign In →</button>
+                <button type="submit" class="btn-primary-wide">Sign In </button>
             </form>
             <div class="auth-hint">Default login: <strong>admin</strong> / <strong>admin123</strong></div>
         </div>
@@ -78,7 +78,7 @@
                     <label>Password</label>
                     <input type="password" name="password" placeholder="Choose a password" required minlength="6">
                 </div>
-                <button type="submit" class="btn-primary-wide">Create Account →</button>
+                <button type="submit" class="btn-primary-wide">Create Account </button>
             </form>
         </div>
     </div>

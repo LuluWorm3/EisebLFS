@@ -14,12 +14,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { display: flex; }
         .main { flex: 1; }
 
-        /* ── Bulletproof Modal Styles ── */
         .modal-overlay {
             display: none; 
             position: fixed; 
@@ -98,39 +96,37 @@
 
         <div class="full-card">
             <div class="table-responsive">
-<div class="table-responsive">
-<table>
-                <thead><tr><th>ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
-                <tbody>
-                <% if (users == null || users.isEmpty()) { %>
-                    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No users found.</td></tr>
-                <% } else {
-                    User currentUser = (User) session.getAttribute("currentUser");
-                    for (User u : users) { %>
-                        <tr>
-                            <td><%= u.getId() %></td>
-                            <td><strong><%= u.getFullName() %></strong></td>
-                            <td><%= u.getUsername() %></td>
-                            <td><%= u.getEmail() %></td>
-                            <td><span class="badge <%= "admin".equals(u.getRole()) ? "badge-red" : "badge-green" %>"><%= u.getRole() %></span></td>
-                            <td style="display:flex;gap:6px;flex-wrap:wrap">
-                                <button class="btn btn-sm btn-outline" onclick='editUser(<%= u.getId() %>,"<%= u.getFullName() %>","<%= u.getEmail() %>","<%= u.getRole() %>")'>Edit</button>
-                                <% if (currentUser == null || currentUser.getId() != u.getId()) { %>
-                                <form method="post" action="<%= cp %>/admin/users" style="display:inline"
-                                      onsubmit="return confirm('Delete user <%= u.getUsername() %>?');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<%= u.getId() %>">
-                                    <button class="btn btn-sm btn-danger" type="submit">🗑</button>
-                                </form>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }
-                } %>
-                </tbody>
-            </table>
-</div>
-</div>
+                <table>
+                    <thead><tr><th>ID</th><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <% if (users == null || users.isEmpty()) { %>
+                        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No users found.</td></tr>
+                    <% } else {
+                        User currentUser = (User) session.getAttribute("currentUser");
+                        for (User u : users) { %>
+                            <tr>
+                                <td><%= u.getId() %></td>
+                                <td><strong><%= u.getFullName() %></strong></td>
+                                <td><%= u.getUsername() %></td>
+                                <td><%= u.getEmail() %></td>
+                                <td><span class="badge <%= "admin".equals(u.getRole()) ? "badge-red" : "badge-green" %>"><%= u.getRole() %></span></td>
+                                <td style="display:flex;gap:6px;flex-wrap:wrap">
+                                    <button class="btn btn-sm btn-outline" onclick='editUser(<%= u.getId() %>,"<%= u.getFullName() %>","<%= u.getEmail() %>","<%= u.getRole() %>")'>Edit</button>
+                                    <% if (currentUser == null || currentUser.getId() != u.getId()) { %>
+                                    <form method="post" action="<%= cp %>/admin/users" style="display:inline"
+                                          onsubmit="return confirm('Delete user <%= u.getUsername() %>?');">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<%= u.getId() %>">
+                                        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                    </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }
+                    } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -260,33 +256,7 @@
         });
     }
 </script>
-<script>
-document.querySelectorAll('table thead th').forEach(function(th, colIndex) {
-    th.style.cursor = 'pointer';
-    th.addEventListener('click', function() {
-        var table = th.closest('table');
-        var tbody = table.querySelector('tbody');
-        var rows = Array.from(tbody.querySelectorAll('tr'));
-        var ascending = th.classList.contains('sorted-asc');
-        // Reset all headers
-        table.querySelectorAll('th').forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
-        // Toggle direction
-        th.classList.add(ascending ? 'sorted-desc' : 'sorted-asc');
-        rows.sort(function(a, b) {
-            var aVal = a.cells[colIndex].textContent.trim().toLowerCase();
-            var bVal = b.cells[colIndex].textContent.trim().toLowerCase();
-            // Try numeric
-            var aNum = parseFloat(aVal.replace(/[^0-9.-]/g, ''));
-            var bNum = parseFloat(bVal.replace(/[^0-9.-]/g, ''));
-            if (!isNaN(aNum) && !isNaN(bNum)) {
-                return ascending ? (bNum - aNum) : (aNum - bNum);
-            }
-            return ascending ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
-        });
-        rows.forEach(function(row) { tbody.appendChild(row); });
-    });
-});
-</script>
+<script src="<%= cp %>/js/tables.js"></script>
 <%@ include file="/WEB-INF/toast.jsp" %>
 </body>
 </html>

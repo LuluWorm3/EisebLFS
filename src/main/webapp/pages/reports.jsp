@@ -22,14 +22,17 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Financial Reports — Eiseb LFS</title>
     <link rel="stylesheet" href="<%= cp %>/css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>body{display:flex;} .main{flex:1;}</style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <%@ include file="/WEB-INF/nav.jsp" %>
 <div class="main">
-    <div class="topbar"><span class="page-title">Financial Reports</span> <a href="<%= cp %>/export?type=sales" class="btn btn-sm btn-outline">📥 Export Sales CSV</a> <a href="<%= cp %>/export?type=expenses" class="btn btn-sm btn-outline">📥 Export Expenses CSV</a> <a href="<%= cp %>/export?type=livestock" class="btn btn-sm btn-outline">📥 Export Livestock CSV</a></div>
+    <div class="topbar"><span class="page-title">Financial Reports</span> 
+        <a href="<%= cp %>/export?type=sales" class="btn btn-sm btn-outline">Export Sales CSV</a> 
+        <a href="<%= cp %>/export?type=expenses" class="btn btn-sm btn-outline">Export Expenses CSV</a> 
+        <a href="<%= cp %>/export?type=livestock" class="btn btn-sm btn-outline">Export Livestock CSV</a>
+    </div>
     <div class="content">
         <div class="section-header">
             <div>
@@ -37,6 +40,20 @@
                 <div class="section-sub">All-time overview</div>
             </div>
         </div>
+
+        <%-- Date filter form --%>
+        <form method="get" action="<%= cp %>/reports" style="margin-bottom:20px; display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
+            <div class="form-group" style="margin-bottom:0">
+                <label>Start Date</label>
+                <input type="date" name="startDate" value="<%= request.getAttribute("startDate") != null ? request.getAttribute("startDate") : "" %>">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>End Date</label>
+                <input type="date" name="endDate" value="<%= request.getAttribute("endDate") != null ? request.getAttribute("endDate") : "" %>">
+            </div>
+            <button type="submit" class="btn btn-earth" style="margin-top:24px">Filter</button>
+            <a href="<%= cp %>/reports" class="btn btn-outline" style="margin-top:24px">Clear</a>
+        </form>
 
         <%-- Summary boxes --%>
         <div class="report-summary">
@@ -58,20 +75,6 @@
                 <div style="font-size:12px;color:var(--muted)"><%= net.compareTo(BigDecimal.ZERO)>=0 ? "Profit" : "Loss" %></div>
             </div>
         </div>
-            <div class="content">
-    <!-- Date filter form -->
-    <form method="get" action="<%= cp %>/reports" style="margin-bottom:20px; display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
-        <div class="form-group" style="margin-bottom:0">
-            <label>Start Date</label>
-            <input type="date" name="startDate" value="<%= request.getAttribute("startDate") != null ? request.getAttribute("startDate") : "" %>">
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-            <label>End Date</label>
-            <input type="date" name="endDate" value="<%= request.getAttribute("endDate") != null ? request.getAttribute("endDate") : "" %>">
-        </div>
-        <button type="submit" class="btn btn-earth" style="margin-top:24px">Filter</button>
-        <a href="<%= cp %>/reports" class="btn btn-outline" style="margin-top:24px">Clear</a>
-    </form>
 
         <div class="dash-grid" style="margin-bottom:28px">
             <%-- Expense breakdown --%>
@@ -129,26 +132,24 @@
         <div class="full-card">
             <div class="card-header"><span class="card-title">All Sales</span></div>
             <div class="table-responsive">
-<div class="table-responsive">
-<table>
-                <thead><tr><th>Date</th><th>Tag</th><th>Buyer</th><th>Type</th><th>Price</th><th>Status</th></tr></thead>
-                <tbody>
-                <% if (sales == null || sales.isEmpty()) { %>
-                    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No sales data</td></tr>
-                <% } else { for (Sale s : sales) { %>
-                    <tr>
-                        <td style="font-family:'DM Mono',monospace;font-size:12px"><%= s.getSaleDate() %></td>
-                        <td><strong style="font-family:'DM Mono',monospace"><%= s.getLivestockTag() %></strong></td>
-                        <td><%= s.getBuyer() %></td>
-                        <td><%= s.getSaleType() %></td>
-                        <td>N$&nbsp;<%= String.format("%,.2f", s.getPrice()) %></td>
-                        <td><span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>"><%= s.getPaymentStatus() %></span></td>
-                    </tr>
-                <% }} %>
-                </tbody>
-            </table>
-</div>
-</div>
+                <table>
+                    <thead><tr><th>Date</th><th>Tag</th><th>Buyer</th><th>Type</th><th>Price</th><th>Status</th></tr></thead>
+                    <tbody>
+                    <% if (sales == null || sales.isEmpty()) { %>
+                        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No sales data</td></tr>
+                    <% } else { for (Sale s : sales) { %>
+                        <tr>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= s.getSaleDate() %></td>
+                            <td><strong style="font-family:'DM Mono',monospace"><%= s.getLivestockTag() %></strong></td>
+                            <td><%= s.getBuyer() %></td>
+                            <td><%= s.getSaleType() %></td>
+                            <td>N$&nbsp;<%= String.format("%,.2f", s.getPrice()) %></td>
+                            <td><span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>"><%= s.getPaymentStatus() %></span></td>
+                        </tr>
+                    <% }} %>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

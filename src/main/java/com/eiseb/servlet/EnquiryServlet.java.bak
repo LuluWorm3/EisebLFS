@@ -4,6 +4,7 @@ import com.eiseb.dao.EnquiryDAO;
 import com.eiseb.model.Enquiry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
+
 import java.io.IOException;
 
 public class EnquiryServlet extends HttpServlet {
@@ -11,7 +12,13 @@ public class EnquiryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/pages/contact.jsp").forward(req, resp);
+        // No login required; just show the contact form if accessed directly
+        String redirectTo = req.getParameter("redirectTo");
+        if ("landing".equals(redirectTo)) {
+            resp.sendRedirect(req.getContextPath() + "/landing.jsp");
+        } else {
+            req.getRequestDispatcher("/pages/contact.jsp").forward(req, resp);
+        }
     }
 
     @Override
@@ -21,12 +28,11 @@ public class EnquiryServlet extends HttpServlet {
             Enquiry e = new Enquiry();
             e.setFullName(req.getParameter("fullName").trim());
             e.setEmail(req.getParameter("email").trim());
-            String subj = req.getParameter("subject");
-            e.setSubject(subj != null ? subj.trim() : "General Enquiry");
-            String msg = req.getParameter("message") != null ? req.getParameter("message").trim() : "";
-            e.setMessage(msg);
+            e.setSubject(req.getParameter("subject") != null ? req.getParameter("subject").trim() : "");
+            e.setMessage(req.getParameter("message").trim());
             new EnquiryDAO(getServletContext()).insert(e);
 
+            // Redirect back to the landing page if the request came from there
             String redirectTo = req.getParameter("redirectTo");
             if ("landing".equals(redirectTo)) {
                 resp.sendRedirect(req.getContextPath() + "/landing.jsp?sent=true");
