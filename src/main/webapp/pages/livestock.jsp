@@ -86,29 +86,29 @@
                     </thead>
                     <tbody>
                     <% if (livestock == null || livestock.isEmpty()) { %>
-                        <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px 0">No animals found. Add one above.</div></td></tr>
+                        <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px 0">No animals found. Add one above.</td></tr>
                     <% } else { for (Livestock l : livestock) { %>
                         <tr>
-                            <td><input type="checkbox" name="ids" value="<%= l.getId() %>" form="bulkDeleteForm"></div></td>
-                            <td><strong style="font-family:'DM Mono',monospace"><%= l.getTag() %></strong></div></td>
-                            <td><%= l.getSpecies() %></div></td>
-                            <td><%= l.getBreed() != null ? l.getBreed() : "—" %></div></td>
-                            <td><%= l.getCategory() != null ? l.getCategory() : "—" %></div></td>
-                            <td><%= l.getGender() %></div></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= l.getDob() != null ? l.getDob() : "—" %></div></td>
-                            <td><%= String.format("%,.2f", l.getCurrentValue()) %></div></td>
+                            <td><input type="checkbox" name="ids" value="<%= l.getId() %>" form="bulkDeleteForm"></td>
+                            <td><strong style="font-family:'DM Mono',monospace"><%= l.getTag() %></strong></td>
+                            <td><%= l.getSpecies() %></td>
+                            <td><%= l.getBreed() != null ? l.getBreed() : "—" %></td>
+                            <td><%= l.getCategory() != null ? l.getCategory() : "—" %></td>
+                            <td><%= l.getGender() %></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= l.getDob() != null ? l.getDob() : "—" %></td>
+                            <td><%= String.format("%,.2f", l.getCurrentValue()) %></td>
                             <td>
                                 <span class="badge <%= "Active".equals(l.getStatus()) ? "badge-green" : "Sold".equals(l.getStatus()) ? "badge-blue" : "badge-red" %>">
                                     <%= l.getStatus() %>
                                 </span>
-                            </div></td>
+                            </td>
                             <td>
                                 <% if (l.getImagePath() != null && !l.getImagePath().isEmpty()) { %>
                                     <img src="<%= cp %>/image?file=livestock/<%= l.getImagePath() %>" class="photo-thumb" onclick="openLightbox('<%= cp %>/image?file=livestock/<%= l.getImagePath() %>')">
                                 <% } else { %>
                                     <span class="no-photo">No photo</span>
                                 <% } %>
-                            </div></td>
+                            </td>
                             <td style="white-space:nowrap"><div style="display:inline-flex;gap:6px;align-items:center">
                                 <button class="btn btn-sm btn-outline"
                                     onclick="openEditModal(
@@ -137,7 +137,7 @@
                                     <input type="hidden" name="id"     value="<%= l.getId() %>">
                                     <button class="btn btn-sm btn-danger" type="button">Delete</button>
                                 </form>
-                            </div></td>
+                            </td>
                         </tr>
                     <% }} %>
                     </tbody>

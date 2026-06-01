@@ -6,7 +6,7 @@
         session.removeAttribute("toastMsg");
         session.removeAttribute("toastType");
 %>
-<div id="toast" role="alert" role="alert" class="toast toast-<%= toastType %>" style="
+<div id="toast" role="alert" class="toast toast-<%= toastType %>" style="
     position:fixed; top:20px; right:20px; z-index:9999;
     background:<%= "success".equals(toastType) ? "#2E7D32" : "#C62828" %>; color:white;
     padding:16px 24px; border-radius:4px; font-family:'DM Sans',sans-serif; font-size:14px;

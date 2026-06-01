@@ -11,7 +11,7 @@
 <div class="auth-wrap">
     <div class="auth-card">
         <div class="auth-logo">
-            <span class="cattle-icon"> </span>
+            <span class="cattle-icon" style="font-size:40px;font-weight:900;color:var(--earth);display:block;margin-bottom:12px;">E</span>
             <div class="brand">Eiseb Country Traders</div>
             <div class="sub">Livestock Financial System</div>
         </div>

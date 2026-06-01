@@ -69,17 +69,17 @@
                     <thead><tr><th></th><th>Date</th><th>Tag</th><th>Buyer</th><th>Type</th><th>Price (N$)</th><th>Payment</th><th>Notes</th><th>Actions</th></tr></thead>
                     <tbody>
                     <% if (sales == null || sales.isEmpty()) { %>
-                        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:40px 0">No sales recorded yet.</div></td></tr>
+                        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:40px 0">No sales recorded yet.</td></tr>
                     <% } else { for (Sale s : sales) { %>
                         <tr>
-                            <td><input type="checkbox" name="ids" value="<%= s.getId() %>" form="bulkDeleteForm"></div></td>
-                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= s.getSaleDate() %></div></td>
-                            <td><strong style="font-family:'DM Mono',monospace"><%= s.getLivestockTag() %></strong></div></td>
-                            <td><%= s.getBuyer() %></div></td>
-                            <td><span class="badge badge-gray"><%= s.getSaleType() %></span></div></td>
-                            <td><strong>N$&nbsp;<%= String.format("%,.2f", s.getPrice()) %></strong></div></td>
-                            <td><span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>"><%= s.getPaymentStatus() %></span></div></td>
-                            <td><%= s.getNotes() != null ? s.getNotes() : "—" %></div></td>
+                            <td><input type="checkbox" name="ids" value="<%= s.getId() %>" form="bulkDeleteForm"></td>
+                            <td style="font-family:'DM Mono',monospace;font-size:12px"><%= s.getSaleDate() %></td>
+                            <td><strong style="font-family:'DM Mono',monospace"><%= s.getLivestockTag() %></strong></td>
+                            <td><%= s.getBuyer() %></td>
+                            <td><span class="badge badge-gray"><%= s.getSaleType() %></span></td>
+                            <td><strong>N$&nbsp;<%= String.format("%,.2f", s.getPrice()) %></strong></td>
+                            <td><span class="badge <%= "Paid".equals(s.getPaymentStatus()) ? "badge-green" : "Pending".equals(s.getPaymentStatus()) ? "badge-yellow" : "badge-blue" %>"><%= s.getPaymentStatus() %></span></td>
+                            <td><%= s.getNotes() != null ? s.getNotes() : "—" %></td>
                             <td style="display:flex;gap:6px">
                                 <button class="btn btn-sm btn-outline"
                                     onclick="openEditModal('<%= s.getId() %>','<%= s.getLivestockId() %>','<%= s.getBuyer().replace("'","\\'") %>','<%= s.getSaleType() %>','<%= s.getSaleDate().toLocalDate().toString() %>','<%= s.getPrice().toPlainString() %>','<%= s.getPaymentStatus() %>','<%= s.getNotes() != null ? s.getNotes().replace("'","\\'") : "" %>')">Edit</button>
@@ -91,7 +91,7 @@
                                 </form>
 <a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
                                 <a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
-                            </div></td>
+                            </td>
                         </tr>
                     <% }} %>
                     </tbody>
