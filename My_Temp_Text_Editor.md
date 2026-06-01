@@ -18,7 +18,7 @@ mvn clean package
 cp target/EisebLFS.war ~/GlassFish_Server/glassfish/domains/domain1/autodeploy/
 
 
-copy al files
+copy all files
 
 cd /home/mammon/NetBeansProjects/EisebLFS
 

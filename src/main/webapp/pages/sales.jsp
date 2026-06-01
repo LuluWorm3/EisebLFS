@@ -58,7 +58,6 @@
             <input type="hidden" name="action" value="bulkDelete">
             <button type="button" class="btn btn-danger" onclick="if(confirm('Delete selected sales?')) document.getElementById('bulkDeleteForm').submit();" style="margin-bottom:10px;">Delete Selected</button>
         </form>
-<a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
 
 
         <input type="text" id="tableSearch" placeholder="Search..." style="margin-bottom:12px; padding:8px 12px; width:100%; max-width:300px; border:1px solid #D4A853; border-radius:4px;">
@@ -89,8 +88,6 @@
                                     <input type="hidden" name="id"     value="<%= s.getId() %>">
                                     <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                                 </form>
-<a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
-                                <a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
                             </td>
                         </tr>
                     <% }} %>
@@ -150,8 +147,6 @@
                 <button type="submit" class="btn btn-earth"   id="submitBtn">Save Sale</button>
             </div>
         </form>
-<a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
-                                <a href="<%= cp %>/invoice?id=<%= s.getId() %>" target="_blank" class="btn btn-sm btn-outline">Invoice</a>
     </div>
 </div>
 

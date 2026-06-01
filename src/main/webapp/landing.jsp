@@ -329,7 +329,7 @@
                 <div class="divider"></div>
                 <p>Have a question about our operations, or want to learn more about our financial management system? Send us a message and we'll get back to you.</p>
                 <div class="contact-item"><div class="ci-icon">L</div><div><div class="ci-label">Location</div><div class="ci-val">Eiseb District, Omaheke Region, Namibia</div></div></div>
-                <div class="contact-item"><div class="ci-icon">P</div><div><div class="ci-label">Phone</div><div class="ci-val">+264 61 000 0000</div></div></div>
+                <div class="contact-item"><div class="ci-icon">P</div><div><div class="ci-label">Phone</div><div class="ci-val">+264 81 850 36 87</div></div></div>
                 <div class="contact-item"><div class="ci-icon">E</div><div><div class="ci-label">Email</div><div class="ci-val">info@eiseblfs.na</div></div></div>
                 <div class="contact-item"><div class="ci-icon">H</div><div><div class="ci-label">Office Hours</div><div class="ci-val">Mon–Fri: 08:00–17:00 · Sat: 08:00–13:00</div></div></div>
             </div>
