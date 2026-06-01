@@ -40,3 +40,20 @@ cd /home/mammon/NetBeansProjects/EisebLFS
 git add .
 git commit -m "Final audit fixes - HTML table validation, CSS cleanup, duplicate UI elements removed"
 git push -u origin main
+
+Safest method is to stash your local changes, pull, then reapply them.
+
+
+cd /home/mammon/NetBeansProjects/EisebLFS
+
+# 1. Stash your local commits (saves them temporarily)
+git stash
+
+# 2. Pull the remote changes and merge them
+git pull origin main --no-rebase
+
+# 3. Reapply your stashed changes
+git stash pop
+
+# 4. Push everything
+git push -u origin main
